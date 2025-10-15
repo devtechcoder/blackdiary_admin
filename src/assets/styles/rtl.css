@@ -1,0 +1,437 @@
+@font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-Regular.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-Bold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-ExtraBold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-Light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Tajawal';
+    src: url('../fonts/Tajawal-ExtraLight.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+  }
+  body { 
+    font-weight: 400;
+    font-family: 'Tajawal'!important;
+  }
+  .ant-select-selection-item { 
+    font-weight: 700 !important; 
+}
+
+
+div#root {
+    direction: rtl;
+}
+.ant-image {
+    margin-left: 10px;
+    margin-right: 0px;
+}
+aside { 
+    border-radius: 40px 0px 0px 40px;
+}
+.brand-logo { 
+    text-align: right;
+}
+.layout-dashboard .ant-layout-sider.sider-primary .ant-menu-item.ant-menu-item-selected .active:after, .layout-dashboard .ant-layout-sider.sider-primary .ant-menu-item .active:after {
+    left: 0;
+    border-radius: 0px 5px 5px 0px;
+    right: initial;
+}
+.SectionMain > div { 
+    text-align: right;
+}
+.rdw-dropdown-carettoopen { 
+    left: 10%; 
+    right: initial;
+}
+.rdw-dropdown-carettoclose {
+    left: 10%; 
+    right: initial;
+}
+.ant-table-thead>tr>th { 
+    text-align: right; 
+}
+.ant-table-tbody>tr>td { 
+    text-align: right; 
+}
+span.add-Ic {
+    line-height: 0; 
+}
+p.ftp_text {
+    text-align: right;
+}
+.number span { 
+    text-align: right;
+    width: auto;
+    display: block;
+}
+.bussiness_year span { 
+    padding-left: 10px; 
+}
+.tablespace .ant-card-head-title .title-left h4 { 
+    text-align: right;
+}
+.title-left p { 
+    text-align: right; 
+}
+.ant-col-24.ant-form-item-label, .ant-col-xl-24.ant-form-item-label, .ant-form-vertical .ant-form-item-label { 
+    text-align: right;
+}
+.ant-input {
+    text-align: right; 
+}
+.ant-upload.ant-upload-select button.ant-btn.ant-btn-default { 
+    direction: rtl;
+}
+.ant-col.ant-form-item-label {
+    text-align: right;
+}
+ 
+.ant-input-number-input{
+    text-align: right;
+}
+.ant-form-item-control-input{
+    text-align: right;
+}
+ 
+.react-tel-input .flag-dropdown {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border-radius: 0px 50px 50px 0px!important;
+}
+.react-tel-input .form-control { 
+    padding-right: 48px; 
+    text-align: right;
+}
+span.anticon.anticon-eye-invisible.ant-input-password-icon {
+    top: 0px !important;
+    right: initial !important;
+    left: 0px !important;
+    border-radius: 50px 0px 0px 50px;
+}
+span.anticon.anticon-eye.ant-input-password-icon{
+    top: 0px !important;
+    right: initial !important;
+    left: 0px !important;
+    border-radius: 50px 0px 0px 50px;
+}
+button.ant-btn.ant-btn-primary { 
+    flex-direction: row-reverse;
+}
+button.ant-btn.ant-btn-default.primary_btn.btnStyle {
+    flex-direction: row-reverse;
+}
+.ant-select:not(.ant-select-customize-input) .ant-select-selector { 
+    text-align: right;
+    padding: 0px 10px !important;
+}
+.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    padding-left: 18px;
+}
+.ant-select-arrow { 
+    left: 11px; 
+    right: initial;
+}
+.ant-table-tbody > tr > td.ant-table-cell .ant-btn.ant-btn-default { 
+    flex-direction: row-reverse;
+    margin-right: 0;
+    margin-left: 10px;
+}
+.checkBoxSrNo table tr th:nth-child(2), .checkBoxSrNo table tr td:nth-child(2) {
+    text-align: right!important;
+    max-width: 50px;
+}
+.cms-page h4 { 
+    text-align: right; 
+}
+.ant-picker .ant-picker-input > input { 
+    text-align: right;
+}
+.ant-picker-input { 
+    flex-direction: row-reverse;
+}
+.ant-picker-suffix { 
+    left: 11px;
+    right: initial;
+    position: absolute;
+}
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-item,.status_wrap .ant-row.ant-form-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+ 
+.ratingCard, .ratingCard h2, .ratingCard p, .ratingCard h5, .rating-card h4, .rating_left.rating-right, .rating_left h4, .rating_left.rating-right p, .rtg-detail p,.rating-right, span.rating-no {
+    text-align: right;
+}
+.ant-rate-star:not(:last-child) {
+    margin-left: 8px;
+    margin-right: 0;
+}
+span.main-rating-cls { 
+    direction: ltr;
+}
+.btn_dlt { 
+    margin-right: 10px;
+}
+.top_rating h4,.collection_wrap span,.pageHeadingSearch .searchInput .ant-input, .tab_inner_tit h3,.ant-modal.tab_modal .ant-form label span,.notification-cont p, .signin-box h1,.ant-typography + h5.ant-typography,.number h3.ant-typography, .notification-card h4, .notification-card .ant-list-item-meta-description, .card_body_space .ant-card-body .CardHeader h5.ant-typography, .sales-text-outer h6, .sales-text-outer h4 { 
+    text-align: right;
+}
+.card_body_space .ant-card-body .CardHeader span.ant-input-wrapper.ant-input-group { 
+    margin-right: auto;
+    margin-left: 0px
+}
+.sales-img-icon { 
+    margin-left: 10px !important;
+    margin-left: initial;
+}
+.ant-checkbox-wrapper{
+    flex-direction: row-reverse;
+}
+.ant-pagination-item, .ant-pagination-total-text { 
+    margin-left: 8px; 
+}
+.ant-pagination-jump-next, .ant-pagination-jump-prev, .ant-pagination-prev {
+    margin-left: 0px;
+}             
+.ant-pagination-options { 
+    margin-right: 16px; 
+}      
+.ant-input-search>.ant-input-group>.ant-input-group-addon:last-child {
+    left: 44px !important; 
+}
+.notification-header .ant-btn-default.ant-dropdown-trigger:after { 
+    left: -2px !important; 
+    right: initial !important;
+}
+.single-notification{
+    direction: rtl;
+}
+.notification-img { 
+    margin-left: 15px;
+    margin-right: 0px;
+}
+.new_driver_dtl p {
+    text-align: right;
+}.ant-steps-vertical>.ant-steps-item .ant-steps-item-icon {
+    float: right;
+    margin-left: 16px; 
+    margin-right: 0px;
+}
+.ant-steps-vertical.ant-steps-dot .ant-steps-item>.ant-steps-item-container>.ant-steps-item-tail {
+    top: 6.5px;
+    left: initial;
+    right: 16px;
+    margin: 0;
+    padding: 22px 0 4px;
+}
+.ant-steps-item-title,.ant-steps-item-description{
+    text-align: right;
+    padding: 0px;
+}
+.ant-steps-item-content {
+    text-align: right;
+}
+span.anticon.anticon-left {
+    transform: rotate(180deg);
+}
+span.anticon.anticon-right {
+    transform: rotate(180deg);
+}
+.order-head.text-left span {
+    justify-content: right;
+}
+.order-head.text-left, .order-head.text-left p, .customer-info h6, .order-dtl-left h6 {
+    text-align: right!important; 
+}
+.order-header,.customer-info, .customer-dtl, .total-price, .order-dtl-card{ 
+    direction: rtl;
+}
+/* .order-dtl-list.edit-order .single-order-dtl { 
+    flex-direction: row-reverse;
+} */
+.order-right {
+    flex: 0 0 90px;
+    margin-right: auto;
+}
+.order-middle {
+    text-align: right;
+    margin-right: 10px;
+}
+/* .delivery-agent-dtl {
+    flex-direction: row-reverse;
+} */
+.agent-img { 
+    margin-left: 20px; 
+    margin-right: 0px;
+}
+.ant-form-item.assign_role_checkbox label.ant-checkbox-wrapper.ant-checkbox-wrapper-in-form-item span { 
+    text-align: right;
+}
+.assign_role label.ant-radio-wrapper { 
+    justify-content: right;
+    flex-direction: row-reverse;
+}
+.ant-select.ant-select-in-form-item .ant-select-selector { 
+    height: 100%!important; 
+}
+.public-DraftStyleDefault-ltr {
+    direction: ltr;
+    text-align: right;
+}
+.delivery_single_agent h5 { 
+    text-align: right; 
+}
+.delivery_agent_dtl { 
+    direction: rtl;
+}
+.ant-list-item-meta-avatar {
+    margin-right: 0px;
+    margin-left: 16px;
+}
+.arrow-ic {
+    margin-left: 10px;
+    transform: rotate(180deg);
+    margin-right: 0px;
+}
+.add-img-product {
+    float: right;
+}
+p.img-size-details {
+    text-align: right;
+}
+.status_wrap {
+    direction: rtl;
+}
+.driver-personal-dtl p { 
+    text-align: right; 
+}
+.ant-select-selection-overflow, .auto_accept_order .ant-row.ant-form-item-row{
+    justify-content: right;
+}
+label.ant-radio-wrapper {
+    direction: rtl;
+    text-align: right;
+}
+.layout-dashboard .ant-layout-sider.sider-primary .ant-image {
+    width: 20px;
+    flex: 0 0 20px;
+}
+
+.rating_left { 
+    flex: 0 0 50%;
+}
+.collection_dtl_body span.ant-avatar { 
+    float: right;
+}
+.ant-form-item-explain-error { 
+    text-align: right;
+}
+.ant-form-item-feedback-icon {
+    position: absolute;
+    left: 45px;
+    right: initial;
+}
+.layout-dashboard .ant-layout-sider.sider-primary .ant-menu-item a, .layout-dashboard .ant-layout-sider.sider-primary .ant-menu-submenu a, .sideNavMain .ant-menu-submenu-title { 
+    font-size: 17px;
+}
+span.ant-picker-separator {
+    transform: rotate(180deg);
+}
+
+
+@media (max-width: 991.98px) {
+    .layout-dashboard .ant-row .ant-col .ant-col {
+        padding: 0px 10px !important;
+    }
+    .layout-dashboard .ant-layout-sider.sider-primary .ant-menu-item a, .layout-dashboard .ant-layout-sider.sider-primary .ant-menu-submenu a, .sideNavMain .ant-menu-submenu-title {
+        white-space: normal; 
+        font-size: 13px;
+    }
+    .collection_dtl_body  button.ant-btn {
+        width: 100% !important;
+        margin: 10px 0px !important;
+    }
+    .checkBox_wrap .ant-checkbox-group{
+        justify-content: right;
+    }
+    header.ant-layout-header {
+        direction: ltr;
+    }
+    .tabLogo {
+        float: right;
+        padding-left: 0;
+        padding-right: 40px;
+    }
+    .notificationDropdownMain {
+        position: absolute;
+        top: -40px;
+        left: 55px;
+        right: initial;
+    }
+    .profileDropdownMain {
+        margin-left: 0;
+        position: absolute;
+        top: -50px;
+        left: 0px;
+        right: initial;
+        width: auto;
+    }
+    .layout-dashboard .header-control button.ant-btn.ant-btn-link.sidebar-toggler {
+        position: absolute;
+        right: 0;
+        top: -45px;
+        left: initial;
+        z-index: 999;
+    }
+    
+    .ant-drawer-left>.ant-drawer-content-wrapper {
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: initial; 
+    }
+    aside { 
+        direction: rtl;
+    }   
+}
