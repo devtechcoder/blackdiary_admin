@@ -7,9 +7,10 @@ console.log("appMode", appMode);
 // 3.20.147.34
 
 if (appMode === "development") {
-  URL = "http://localhost:7900/api/";
+  // URL = "https://backend.insave.com/api/";
+  URL = "https://blackdiary.onrender.com/api/";
 } else {
-  URL = "http://localhost:7900/api/";
+  URL = "https://blackdiary.onrender.com/api/";
 }
 
 let apiPath = {
