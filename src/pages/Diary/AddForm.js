@@ -11,10 +11,12 @@ import { useNavigate, useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import CaptionInput from "../../components/captionInput";
+import ProfileImageUpload from "../../modal/ProfileImageUpload";
 function AddFrom() {
-  const sectionName = lang("Diary");
+  const sectionName = lang("Feed");
   const routeName = "Diary";
-  const heading = lang("Add Diary");
+  const heading = lang("Add Feed");
   const { setPageHeading, country } = useAppContext();
   const navigate = useNavigate();
   const api = {
@@ -34,7 +36,14 @@ function AddFrom() {
   const [authors, setAuthors] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [content, setContent] = useState("");
+  const [searchParams] = useSearchParams();
 
+  const type = searchParams.get("type");
+  const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
+  const handleImage = (data) => {
+    data ? setImage(data) : setImage();
+  };
   const getCategory = () => {
     request({
       url: apiPath.common.categories,
@@ -100,14 +109,13 @@ function AddFrom() {
 
   const fetchData = (id) => {
     request({
-      url: `${api.addEdit}/view/${id}`,
+      url: `${api.addEdit}/view/${id}?type=${type}`,
       method: "GET",
       onSuccess: ({ data, status }) => {
         setLoading(false);
         if (status) {
           form.setFieldsValue({ ...data, sub_category_id: data?.sub_category_id?.map(({ _id }) => _id), author: data?.author?._id ?? "" });
-          setEditorValue(data?.content);
-          setEditorHiValue(data?.hi_content);
+          setContent(data?.content);
           setImage(data?.image);
           if (data?.category) getSubCategory(data?.category);
         }
@@ -118,22 +126,22 @@ function AddFrom() {
     });
   };
 
-  const handleEditorChange = (data) => {
-    setEditorValue(data);
-  };
-  const handleHiEditorChange = (data) => {
-    setEditorHiValue(data);
-  };
   const OnSubmit = (values) => {
-    if (editorValue.trim() == "<p></p>" || editorValue.trim() === "") return ShowToast("Please Enter Content", Severty.ERROR);
-
-    if (editorHiValue.trim() == "<p></p>" || editorHiValue.trim() === "") return ShowToast("Please Enter Content Hindi", Severty.ERROR);
-
     const { title } = values;
-    const payload = { title, ...values };
-    payload.content = editorValue;
-    payload.hi_content = editorHiValue;
-    payload.image = image;
+    const payload = { title, type, ...values };
+    if (type === "shayari") {
+      if (!content.trim() || content === "<p><br></p>") {
+        ShowToast("Please write your shayari in the content box.", Severty.WARNING);
+        return;
+      }
+      payload.content = content;
+    } else {
+      if (!image) {
+        ShowToast("Please upload an image for your post.", Severty.WARNING);
+        return;
+      }
+      payload.image = image;
+    }
     setLoading(true);
     request({
       url: paramId ? api.addEdit + "/" + paramId : api.addEdit,
@@ -252,52 +260,7 @@ function AddFrom() {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={12} md={12}>
-                  <Form.Item
-                    normalize={(value) => value.trimStart()}
-                    label={lang("Title")}
-                    name="title"
-                    rules={[
-                      {
-                        required: true,
-                        message: lang("Please Enter the title!"),
-                      },
-                      {
-                        max: 200,
-                        message: lang("title should not contain more then 200 characters!"),
-                      },
-                      {
-                        min: 2,
-                        message: lang("title should contain at least 2 characters!"),
-                      },
-                    ]}
-                  >
-                    <Input autoComplete="off" placeholder={lang("Enter Title")} />
-                  </Form.Item>
-                </Col>
-                <Col span={12} md={12}>
-                  <Form.Item
-                    normalize={(value) => value.trimStart()}
-                    label={lang("Title Hindi")}
-                    name="hi_title"
-                    rules={[
-                      {
-                        required: true,
-                        message: lang("Please Enter the title!"),
-                      },
-                      {
-                        max: 200,
-                        message: lang("title should not contain more then 200 characters!"),
-                      },
-                      {
-                        min: 2,
-                        message: lang("title should contain at least 2 characters!"),
-                      },
-                    ]}
-                  >
-                    <Input autoComplete="off" placeholder={lang("Enter Title")} />
-                  </Form.Item>
-                </Col>
+
                 <Col span={12} sm={12}>
                   <Form.Item
                     label={lang("Author Name")}
@@ -318,17 +281,19 @@ function AddFrom() {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={24} md={24}>
-                  <Form.Item label={lang("Content (English)")} name="content" rules={[{ required: true, message: "Please Enter the Content!" }]}>
-                    <DescriptionEditor value={editorValue} placeholder={lang("Enter Content")} onChange={(data) => handleEditorChange(data)} />
-                  </Form.Item>
-                </Col>
-
-                <Col span={24} md={24}>
-                  <Form.Item label={lang("Content (Hindi)")} name="hi_content" rules={[{ required: true, message: "Please Enter the Content!" }]}>
-                    <DescriptionEditor value={editorHiValue} placeholder={lang("Enter Hindi Content")} onChange={(data) => handleHiEditorChange(data)} />
-                  </Form.Item>
-                </Col>
+                {type === "shayari" ? (
+                  <Col span={24} sm={24}>
+                    <Form.Item label="Content">
+                      <CaptionInput value={content} onChange={setContent} />
+                    </Form.Item>
+                  </Col>
+                ) : (
+                  <Col span={24} sm={24}>
+                    <Form.Item name="image" className="text-white" label="Image" rules={[{ required: true, message: "Please upload an image for your post." }]}>
+                      <ProfileImageUpload size={10} value={image} fileType={FileType} btnName={"Choose Image"} imageType="Image" onChange={(data) => handleImage(data)} isDimension={true} />
+                    </Form.Item>
+                  </Col>
+                )}
               </Row>
 
               <Row gutter={[24, 16]} className="justify-content-center">

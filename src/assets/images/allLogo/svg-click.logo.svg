@@ -1,0 +1,5 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" stroke="black" strokeWidth="6">
+                            <path d="M50 10 L90 90 H10 Z" />
+                            <path d="M50 10 V90" />
+                            <path d="M10 90 L50 60 L90 90" />
+                          </svg>

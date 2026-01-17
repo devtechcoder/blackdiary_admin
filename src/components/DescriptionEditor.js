@@ -3,8 +3,9 @@ import { EditorState, convertToRaw, ContentState, convertFromHTML } from "draft-
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
+import { Col } from "antd";
 
-const DescriptionEditor = ({ onChange, placeholder, value }) => {
+const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
   // const handleEditorChange = (newEditorState) => {
@@ -43,14 +44,16 @@ const DescriptionEditor = ({ onChange, placeholder, value }) => {
   }, []);
 
   return (
-    <Editor
-      editorState={editorState}
-      placeholder={placeholder}
-      toolbarClassName="toolbarClassName"
-      wrapperClassName="wrapperClassName"
-      editorClassName="editorClassName"
-      onEditorStateChange={handleEditorChange}
-    />
+    <Col md={cover ? cover.md : 24} {...colProps}>
+      <Editor
+        editorState={editorState}
+        placeholder={placeholder}
+        toolbarClassName="toolbarClassName"
+        wrapperClassName="wrapperClassName"
+        editorClassName="editorClassName"
+        onEditorStateChange={handleEditorChange}
+      />
+    </Col>
   );
 };
 

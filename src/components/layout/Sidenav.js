@@ -6,13 +6,14 @@ import Cms from "../../assets/images/side_nav/cms.svg";
 import Coust from "../../assets/images/side_nav/customer.svg";
 import Dash from "../../assets/images/side_nav/dash.svg";
 import Log from "../../assets/images/side_nav/log.svg";
-import Logo from "../../assets/images/icon/logo.png";
+import Logo from "../../assets/images/allLogo/logowithoutbrand.png";
 import { AuthContext } from "../../context/AuthContext";
 import lang from "../../helper/langHelper";
 import DeleteModal from "../DeleteModal";
 import { useAppContext } from "../../context/AppContext";
 import moment, { isMoment } from "moment";
 import { Severty, ShowToast } from "../../helper/toast";
+import { SettingOutlined, UserOutlined, LockOutlined } from "@ant-design/icons";
 
 export const countryWithAreas = [
   "646b2e0f46865f1f65565346", //Palestine
@@ -53,15 +54,45 @@ export const menuItems = [
   {
     key: "diary-manager",
     path: "/diary",
-    label: `${lang("Diary")} ${lang("Management")}`,
+    label: `${lang("Feed")} ${lang("Management")}`,
     icon: Coust,
   },
-
   {
-    key: "cms-manager",
+    key: "leadership-management",
+    path: "/leadership",
+    icon: Cms,
+    label: `${lang("Leadership")} ${lang("Management")}`,
+  },
+  {
+    key: "cms-management",
     path: "/cms",
     icon: Cms,
     label: `${lang("CMS")} ${lang("Management")}`,
+  },
+  {
+    key: "banner-management",
+    path: "/banner",
+    icon: Cms,
+    label: `${lang("Banner")} ${lang("Management")}`,
+  },
+  {
+    key: "setting-management",
+    icon: <SettingOutlined />,
+    label: "Setting Management",
+    children: [
+      {
+        key: "/setting/social",
+        path: "/setting/social",
+        icon: <SettingOutlined />,
+        label: "Social Media",
+      },
+      {
+        key: "/setting/general",
+        path: "/setting/general",
+        icon: <SettingOutlined />,
+        label: "General",
+      },
+    ],
   },
 ];
 

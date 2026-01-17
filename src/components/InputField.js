@@ -1,47 +1,17 @@
 import { Col, Form, Input, Select, InputNumber } from "antd";
 import PhoneInput from "react-phone-input-2";
 
-export const TextInputBox = ({
-  label,
-  name,
-  placeholder,
-  rules,
-  cover,
-  className,
-  isDisable,
-  inputProps,
-  colProps,
-  ...props
-}) => {
+export const TextInputBox = ({ label, name, placeholder, rules, cover, className, isDisable, inputProps, colProps, ...props }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>
-      <Form.Item
-        className={!!className ? className : ""}
-        label={label}
-        name={name}
-        rules={rules}
-        normalize={(value) => value.trimStart()}
-        {...props}
-      >
+      <Form.Item className={!!className ? className : ""} label={label} name={name} rules={rules} normalize={(value) => value.trimStart()} {...props}>
         <Input placeholder={placeholder} disabled={isDisable} {...inputProps} autoComplete="off" />
       </Form.Item>
     </Col>
   );
 };
 
-export const SelectInput = ({
-  label,
-  name,
-  placeholder,
-  options,
-  rules,
-  cover,
-  className,
-  defaultValue,
-  handleChange,
-  colProps,
-  ...props
-}) => {
+export const SelectInput = ({ label, name, placeholder, options, rules, cover, className, defaultValue, handleChange, colProps, ...props }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>
       <Form.Item name={name} label={label} rules={rules}>
@@ -52,6 +22,7 @@ export const SelectInput = ({
           defaultValue={defaultValue}
           onChange={handleChange}
           autoComplete="off"
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
         >
           {options.map((item, index) => (
             <Select.Option key={item._id} value={item._id} label={item.name}>
@@ -64,16 +35,7 @@ export const SelectInput = ({
   );
 };
 
-export const MultiSelect = ({
-  cover,
-  name,
-  label,
-  rules,
-  placeholder,
-  className,
-  options,
-  colProps,
-}) => {
+export const MultiSelect = ({ cover, name, label, rules, placeholder, className, options, colProps }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>
       <Form.Item name={name} label={label} rules={rules}>
@@ -114,9 +76,7 @@ export const EmailField = ({ label, name, placeholder, cover, className }) => {
             message: "Email should contain at least 5 characters!",
           },
           {
-            pattern: new RegExp(
-              /^([a-zA-Z0-9._%-]*[a-zA-Z]+[a-zA-Z0-9._%-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/
-            ),
+            pattern: new RegExp(/^([a-zA-Z0-9._%-]*[a-zA-Z]+[a-zA-Z0-9._%-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/),
             message: "Enter valid email!",
           },
         ]}
@@ -127,18 +87,7 @@ export const EmailField = ({ label, name, placeholder, cover, className }) => {
   );
 };
 
-export const PhoneNumberField = ({
-  label,
-  name,
-  placeholder,
-  cover,
-  className,
-  onChange,
-  inputProps,
-  colProps,
-  rules = true,
-  ...props
-}) => {
+export const PhoneNumberField = ({ label, name, placeholder, cover, className, onChange, inputProps, colProps, rules = true, ...props }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>
       <Form.Item
@@ -179,25 +128,10 @@ export const PhoneNumberField = ({
   );
 };
 
-export const NumberInputBox = ({
-  label,
-  name,
-  placeholder,
-  rules,
-  cover,
-  className,
-  colProps,
-  ...props
-}) => {
+export const NumberInputBox = ({ label, name, placeholder, rules, cover, className, colProps, ...props }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>
-      <Form.Item
-        className={!!className ? className : ""}
-        label={label}
-        name={name}
-        rules={rules}
-        {...props}
-      >
+      <Form.Item className={!!className ? className : ""} label={label} name={name} rules={rules} {...props}>
         <InputNumber placeholder={placeholder} />
       </Form.Item>
     </Col>

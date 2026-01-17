@@ -19,7 +19,7 @@ import Home from "./pages/Auth/Home";
 import SignIn from "./pages/Auth/SignIn";
 import Error from "./pages/Error";
 
-import { Category, CmsManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion } from "./pages";
+import { Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership } from "./pages";
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
 function App() {
@@ -59,6 +59,7 @@ const AppRoutes = () => {
         <Route exact path="/" element={<Home />} />
         <Route exact path="/dashboard" element={<Home />} />
         <Route exact path="/customer" element={<Customer />} />
+        <Route exact path="/leadership" element={<Leadership />} />
         {/* category */}
         <Route exact path="/category" element={<Category />} />
         <Route exact path="/occasion" element={<Occasion />} />
@@ -69,6 +70,10 @@ const AppRoutes = () => {
 
         {/* cms manager */}
         <Route exact path="/cms" element={<CmsManagement />} />
+        <Route exact path="/banner" element={<BannerManagement />} />
+
+        {/* Settings */}
+        <Route exact path="/setting/:slug" element={<Settings />} />
       </Route>
 
       <Route path="*" element={<Error />} />

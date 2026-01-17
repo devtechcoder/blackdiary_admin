@@ -1,20 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Layout,
-  Button,
-  Row,
-  Col,
-  Typography,
-  Form,
-  Input,
-  Switch,
-  Modal,
-  Select,
-  Checkbox,
-} from "antd";
-import signinLogo from "../../assets/images/Logo.png";
-import signinbg from "../../assets/images/login-logo.png";
+import { Layout, Button, Row, Col, Typography, Form, Input, Switch, Modal, Select, Checkbox } from "antd";
+import signinLogo from "../../assets/images/allLogo/black-logo.png";
+import signinbg from "../../assets/images/allLogo/login-bg-logo.png";
 import useRequest from "../../hooks/useRequest";
 import useFirebase from "../../hooks/useFirebase";
 import { ShowToast, Severty } from "../../helper/toast";
@@ -56,8 +44,7 @@ const SignIn = () => {
   const onSubmit = (values) => {
     const { email, password } = values;
 
-    if (!email)
-      return ShowToast("Please enter email to sign in", Severty.ERROR);
+    if (!email) return ShowToast("Please enter email to sign in", Severty.ERROR);
 
     const payload = {
       password,
@@ -85,9 +72,7 @@ const SignIn = () => {
             // Store the login state in local storage
 
             var emailEncrypt = encryptDecrypt.encryptEmail(values.email);
-            var passwordEncrypt = encryptDecrypt.encryptPassword(
-              values.password
-            );
+            var passwordEncrypt = encryptDecrypt.encryptPassword(values.password);
 
             localStorage.setItem("rememberMe", true);
             localStorage.setItem("ykmCe2AYEFTHobn", emailEncrypt);
@@ -248,19 +233,11 @@ const SignIn = () => {
                 <Row justify="space-around">
                   <Col xs={{ span: 24 }} lg={{ span: 24 }} md={{ span: 24 }}>
                     <div className="signup-form">
-                      <Title className="mb-15">
-                        {lang("Login to your Account Admin")}
-                      </Title>
+                      <Title className="mb-15">{lang("Login to your Account Admin")}</Title>
                       <Title className="font-regular text-muted" level={5}>
                         {lang("See what is going on with your business")}
                       </Title>
-                      <Form
-                        form={form}
-                        onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        layout="vertical"
-                        className="row-col"
-                      >
+                      <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed} layout="vertical" className="row-col">
                         {/* <Form.Item label={"Login As"}>
                           <Select
                             defaultValue="Admin"
@@ -278,15 +255,11 @@ const SignIn = () => {
                           rules={[
                             {
                               type: "email",
-                              message: lang(
-                                "Please enter a valid email address!"
-                              ),
+                              message: lang("Please enter a valid email address!"),
                             },
                             {
                               max: 255,
-                              message: lang(
-                                "Email address not more then 255 characters!"
-                              ),
+                              message: lang("Email address not more then 255 characters!"),
                             },
                             {
                               required: true,
@@ -303,9 +276,7 @@ const SignIn = () => {
                           rules={[
                             {
                               max: 255,
-                              message: lang(
-                                "Password should contain more then 255 characters!"
-                              ),
+                              message: lang("Password should contain more then 255 characters!"),
                             },
                             {
                               required: true,
@@ -322,35 +293,19 @@ const SignIn = () => {
                           />
                         </Form.Item>
                         <div className="forgot-pass">
-                          <Form.Item
-                            name="remember"
-                            className="aligin-center"
-                            valuePropName="checked"
-                          >
-                            <Checkbox
-                              checked={rememberMe}
-                              onChange={handleRememberMeChange}
-                            >
+                          <Form.Item name="remember" className="aligin-center" valuePropName="checked">
+                            <Checkbox checked={rememberMe} onChange={handleRememberMeChange}>
                               {lang("Remember me")}
                             </Checkbox>
                           </Form.Item>
-                          <Form.Item
-                            name="remember"
-                            className="aligin-center"
-                            valuePropName="checked"
-                          >
+                          <Form.Item name="remember" className="aligin-center" valuePropName="checked">
                             <a onClick={handleForgotPassword}>
                               <a>{lang("Forgot Password?")}</a>
                             </a>
                           </Form.Item>
                         </div>
                         <Form.Item>
-                          <Button
-                            className="float-right"
-                            type="primary"
-                            htmlType="submit"
-                            loading={loading}
-                          >
+                          <Button className="float-right" type="primary" htmlType="submit" loading={loading}>
                             {lang("Login")}
                           </Button>
                         </Form.Item>
@@ -380,11 +335,7 @@ const SignIn = () => {
             }}
           >
             <h4 className="modal_title_cls">{lang("Forgot Password")}</h4>
-            <Form
-              id="forget-pasword"
-              onFinish={handleResetPassword}
-              layout="vertical"
-            >
+            <Form id="forget-pasword" onFinish={handleResetPassword} layout="vertical">
               <Form.Item
                 label={lang("Email Address")}
                 name="email"
@@ -395,9 +346,7 @@ const SignIn = () => {
                   },
                   {
                     max: 255,
-                    message: lang(
-                      "Email address not more then 255 characters!"
-                    ),
+                    message: lang("Email address not more then 255 characters!"),
                   },
                   {
                     required: true,
@@ -405,10 +354,7 @@ const SignIn = () => {
                   },
                 ]}
               >
-                <Input
-                  autoComplete="off"
-                  placeholder={lang("Enter Email Address")}
-                />
+                <Input autoComplete="off" placeholder={lang("Enter Email Address")} />
               </Form.Item>
             </Form>
           </Modal>
@@ -431,11 +377,7 @@ const SignIn = () => {
             }}
           >
             <h4 className="modal_title_cls">{lang("Verify OTP")}</h4>
-            <Form
-              id="verify-otp"
-              onFinish={(e) => handleVerifyOTP(e)}
-              layout="vertical"
-            >
+            <Form id="verify-otp" onFinish={(e) => handleVerifyOTP(e)} layout="vertical">
               <Form.Item
                 label={lang("OTP")}
                 name="otp"
@@ -450,12 +392,7 @@ const SignIn = () => {
                   },
                 ]}
               >
-                <Input
-                  autoComplete="off"
-                  type="number"
-                  maxLength={4}
-                  placeholder={lang("Enter OTP")}
-                />
+                <Input autoComplete="off" type="number" maxLength={4} placeholder={lang("Enter OTP")} />
               </Form.Item>
             </Form>
           </Modal>
@@ -475,11 +412,7 @@ const SignIn = () => {
             className="tab_modal"
           >
             <h4 className="modal_title_cls">{lang("Reset Password")}</h4>
-            <Form
-              id="reset-password"
-              onFinish={(e) => handleReset(e)}
-              layout="vertical"
-            >
+            <Form id="reset-password" onFinish={(e) => handleReset(e)} layout="vertical">
               <Form.Item
                 label={lang("New Password")}
                 name="newPassword"
@@ -489,9 +422,7 @@ const SignIn = () => {
                     message: lang("Please enter your new password!"),
                   },
                   {
-                    pattern: new RegExp(
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/
-                    ),
+                    pattern: new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/),
                     message: lang(
                       "New password atleast contain 8 characters, atleast contain one captital letter, atleast contain one small letter, atleast contain one digit, atleast contain one special character"
                     ),
@@ -511,9 +442,7 @@ const SignIn = () => {
                     message: lang("Please enter the confirm password!"),
                   },
                   {
-                    pattern: new RegExp(
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/
-                    ),
+                    pattern: new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/),
                     message:
                       "Confirm password atleast contain 8 characters, atleast contain one captital letter, atleast contain one small letter, atleast contain one digit, atleast contain one special character",
                   },
@@ -522,11 +451,7 @@ const SignIn = () => {
                       if (!value || getFieldValue("newPassword") === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(
-                        new Error(
-                          lang("Password that you entered doesn't match!")
-                        )
-                      );
+                      return Promise.reject(new Error(lang("Password that you entered doesn't match!")));
                     },
                   }),
                 ]}

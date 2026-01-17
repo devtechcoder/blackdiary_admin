@@ -1,17 +1,13 @@
 let appMode = process.env.REACT_APP_ENV;
-let ASSET_URL = "http://localhost:7900//image/";
+let ASSET_URL = "http://localhost:7900/image/";
 let URL;
 
 console.log("appMode", appMode);
 
 // 3.20.147.34
 
-if (appMode === "development") {
-  // URL = "https://backend.insave.com/api/";
-  URL = "https://blackdiary.onrender.com/api/";
-} else {
-  URL = "https://blackdiary.onrender.com/api/";
-}
+URL = "https://blackdiary.onrender.com/api/";
+// URL = "http://localhost:7900/api/";
 
 let apiPath = {
   baseURL: URL,
@@ -29,6 +25,12 @@ let apiPath = {
 
   // Customer APIs
   listCustomer: "admin/customer",
+
+  // Leadership APIs
+  listLeadership: "admin/leadership",
+
+  //CMS
+  listCms: "admin/cms",
 
   //bannner API
   banner: "admin/banner",
@@ -58,6 +60,10 @@ let apiPath = {
   // sub category
   listSubCategory: "admin/sub-category",
   statusSubCategory: "admin/sub-category/status",
+
+  // Settings
+  listSettings: "admin/setting",
+  addEditSettings: "admin/setting",
 
   common: {
     categories: "common/categories",
