@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { EditorState, convertToRaw, ContentState, convertFromHTML } from "draft-js";
+import { EditorState, ContentState, convertFromHTML } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
@@ -18,8 +18,9 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
 
   const handleEditorChange = (newEditorState) => {
     setEditorState(newEditorState);
-    const rawContent = convertToRaw(newEditorState.getCurrentContent());
+  };
 
+  const handleContentChange = (rawContent) => {
     const htmlContent = draftToHtml(rawContent, null, null, {
       defaultBlockTag: "p",
       blockRenderers: {
@@ -35,12 +36,22 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
   };
 
   useEffect(() => {
-    if (value) {
-      const blocksFromHTML = convertFromHTML(value);
-      const content = ContentState.createFromBlockArray(blocksFromHTML);
-      const editorState = EditorState.createWithContent(content);
-      setEditorState(editorState);
+    if (!value || typeof value !== "string") {
+      setEditorState(EditorState.createEmpty());
+      return;
     }
+
+    const blocksFromHTML = convertFromHTML(value);
+    const contentBlocks = blocksFromHTML?.contentBlocks || [];
+    const entityMap = blocksFromHTML?.entityMap || {};
+
+    if (!contentBlocks.length) {
+      setEditorState(EditorState.createWithContent(ContentState.createFromText("")));
+      return;
+    }
+
+    const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
+    setEditorState(EditorState.createWithContent(content));
   }, []);
 
   return (
@@ -52,6 +63,7 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
         wrapperClassName="wrapperClassName"
         editorClassName="editorClassName"
         onEditorStateChange={handleEditorChange}
+        onContentStateChange={handleContentChange}
       />
     </Col>
   );

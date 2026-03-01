@@ -19,6 +19,14 @@ export const countryWithAreas = [
   "646b2e0f46865f1f65565346", //Palestine
 ];
 
+export const masterSubMenu = {
+  web_page_heading: "Web Pages Heading",
+  user_safety_toolkit: "User Safety Toolkit",
+  user_privacy_tools: "User Privacy Tools",
+  user_account_security: "User Account Security",
+  work_at: "Working at Black Diary",
+};
+
 export const menuItems = [
   {
     key: "dashboard-management",
@@ -76,20 +84,31 @@ export const menuItems = [
     label: `${lang("Banner")} ${lang("Management")}`,
   },
   {
+    key: "master-management",
+    icon: Cms,
+    label: `${lang("Master")} ${lang("Management")}`,
+    children: Object.entries(masterSubMenu).map(([key, value]) => ({
+      key: `/master/${key}`,
+      path: `/master/${key}`,
+      icon: Cms,
+      label: value,
+    })),
+  },
+  {
     key: "setting-management",
-    icon: <SettingOutlined />,
+    icon: Cms,
     label: "Setting Management",
     children: [
       {
         key: "/setting/social",
         path: "/setting/social",
-        icon: <SettingOutlined />,
+        icon: Cms,
         label: "Social Media",
       },
       {
         key: "/setting/general",
         path: "/setting/general",
-        icon: <SettingOutlined />,
+        icon: Cms,
         label: "General",
       },
     ],

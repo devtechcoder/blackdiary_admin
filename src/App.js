@@ -19,7 +19,7 @@ import Home from "./pages/Auth/Home";
 import SignIn from "./pages/Auth/SignIn";
 import Error from "./pages/Error";
 
-import { Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership } from "./pages";
+import { Masters, Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership } from "./pages";
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
 function App() {
@@ -74,6 +74,8 @@ const AppRoutes = () => {
 
         {/* Settings */}
         <Route exact path="/setting/:slug" element={<Settings />} />
+        {/* Masters */}
+        <Route exact path="/master/:slug" element={<Masters />} />
       </Route>
 
       <Route path="*" element={<Error />} />

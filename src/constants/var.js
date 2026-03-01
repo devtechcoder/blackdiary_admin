@@ -1,50 +1,3 @@
-export const Last20Years = Array.from({ length: 20 }, (_, index) => (new Date().getFullYear() - index).toString());
-export const Months = [
-  { label: "January", value: 1 },
-  { label: "February", value: 2 },
-  { label: "March", value: 3 },
-  { label: "April", value: 4 },
-  { label: "May", value: 5 },
-  { label: "June", value: 6 },
-  { label: "July", value: 7 },
-  { label: "August", value: 8 },
-  { label: "September", value: 9 },
-  { label: "October", value: 10 },
-  { label: "November", value: 11 },
-  { label: "December", value: 12 },
-];
-
-export const deleteAccount = [
-  "I am getting better deal somewhere else.",
-  "I am not getting the service I was promised.",
-  "I am not getting proper support from the team.",
-  "I am not getting the features I want.",
-  "I want some customization according to my need.",
-  "Other",
-];
-
-export const BlockRest = ["Quality and Safety Issues", "Chronic Order Delays", "Misrepresentation", "Violation of Platform Policies", "Illegal Activities"];
-
-export const BlockDriver = ["Consistent Order Delays", "Poor Customer Service", "Reckless Driving", "Fraudulent Activity", "Violation of Platform Policies"];
-
-export const CancelOrder = [
-  "Payment Issues",
-  "Unavailability of Items",
-  "Delivery Address Inaccuracy",
-  "Security or Fraud Concerns",
-  "Violation of Platform Policies",
-  "Customer Not Accept",
-  "Customer Absent",
-];
-
-export const BlockSubAdmin = [
-  "Violation of Company Policies",
-  "Breach of Security Protocols",
-  "Misuse of Administrative Privileges",
-  "Failure to Fulfill Assigned Responsibilities",
-  "Engagement in Unethical Behavior",
-];
-
 export const DeleteBanner = ["Expired Promotion or Event", "Incorrect Information", "Inappropriate Content", "Rebranding or Campaign Change", "Design or Layout Issues"];
 
 export const rolesOptions = [
@@ -90,4 +43,19 @@ export const colorOptions = [
   { value: "maroon", name: "Maroon" },
   { value: "navy", name: "Navy" },
   { value: "gold", name: "Gold" },
+];
+
+export const webPageHeadingOptions = [
+  { _id: "user_safety_support", name: "user_safety_support" },
+  { _id: "user_safety_toolkit", name: "user_safety_toolkit" },
+  { _id: "user_privacy_tools", name: "user_privacy_tools" },
+  { _id: "user_account_security", name: "user_account_security" },
+  { _id: "leadership", name: "leadership" },
+  { _id: "work_at", name: "work_at" },
+  { _id: "privacy_policy", name: "privacy_policy" },
+  { _id: "terms_and_conditions", name: "terms_and_conditions" },
+  { _id: "about_us", name: "about_us" },
+  { _id: "contact_us", name: "contact_us" },
+  { _id: "faq", name: "faq" },
+  { _id: "sitemap", name: "sitemap" },
 ];

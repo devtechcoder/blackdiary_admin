@@ -1,5 +1,5 @@
 let appMode = process.env.REACT_APP_ENV;
-let ASSET_URL = "http://localhost:7900/image/";
+let ASSET_URL = "http://localhost:7900/";
 let URL;
 
 console.log("appMode", appMode);
@@ -64,6 +64,10 @@ let apiPath = {
   // Settings
   listSettings: "admin/setting",
   addEditSettings: "admin/setting",
+
+  // Settings
+  listMasters: "admin/master",
+  addEditMasters: "admin/master",
 
   common: {
     categories: "common/categories",

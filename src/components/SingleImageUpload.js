@@ -1,44 +1,25 @@
-import { Button, message, Upload, Image } from "antd";
+import { Button, Upload } from "antd";
 import React, { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
-import { uploadFile } from "react-s3";
-import { s3Config } from "../config/s3Config";
 import { ShowToast, Severty } from "../helper/toast";
-import { getFileExtension } from "../helper/functions";
-import apiPath from "../constants/apiPath";
-import useRequest from "../hooks/useRequest";
 
-const SingleImageUpload = ({ fileType, value, imageType, btnName, onChange, size = 1, isDimension = false, ...props }) => {
+const SingleImageUpload = ({ fileType, value, imageType, btnName, onChange, size = 5, isDimension = false, ...props }) => {
   const [file, setFile] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { request } = useRequest();
 
-  const handleImgChange = async ({ file }) => {
-    const formData = new FormData();
-    formData.append("image", file);
-    setLoading(true);
-    request({
-      url: apiPath.common.imageUpload,
-      method: "POST",
-      data: formData,
-      onSuccess: ({ data, status }) => {
-        setLoading(false);
-        if (status) {
-          ShowToast(data.message, Severty.SUCCESS);
-          setFile([file]);
-          console.log(data, "data+++");
-          if (onChange) {
-            onChange(data?.path); // if you want to pass image URL/path to parent
-          }
-        } else {
-          ShowToast(data.message, Severty.ERROR);
-        }
-      },
-      onError: (error) => {
-        ShowToast(error?.response?.data?.message, Severty.ERROR);
-        setLoading(false);
-      },
-    });
+  const handleImgChange = ({ file: currentFile, fileList }) => {
+    if (currentFile?.status === "removed" || !fileList?.length) {
+      setFile([]);
+      if (onChange) {
+        onChange(null);
+      }
+      return;
+    }
+
+    const latestFile = fileList.slice(-1);
+    setFile(latestFile);
+    if (onChange) {
+      onChange(currentFile?.originFileObj || currentFile || null);
+    }
   };
 
   const checkImageDimensions = (file) => {
@@ -66,31 +47,57 @@ const SingleImageUpload = ({ fileType, value, imageType, btnName, onChange, size
       }
       const isLt2M = file.size / 1024 / 1024 < size;
 
-      // if (!isLt2M) {
-      //   ShowToast(`Image must be smaller than ${size} MB!`, Severty.ERROR);
-      //   return false;
-      // }
+      if (!isLt2M) {
+        ShowToast(`Image must be smaller than ${size} MB!`, Severty.ERROR);
+        return Upload.LIST_IGNORE;
+      }
       // isDimension && (await checkImageDimensions(file));
-      return true;
+      return false;
     } catch (err) {
       ShowToast(err, Severty.ERROR);
-      return false;
+      return Upload.LIST_IGNORE;
     }
   };
 
   const onRemove = () => {
     setFile([]);
     if (onChange) {
-      onChange([]);
+      onChange(null);
     }
   };
 
   useEffect(() => {
-    if (!value) setFile([]);
+    if (!value) {
+      setFile([]);
+      return;
+    }
+
+    if (typeof value === "string") {
+      setFile([
+        {
+          uid: "-1",
+          name: "image",
+          status: "done",
+          url: value,
+        },
+      ]);
+      return;
+    }
+
+    if (value instanceof File) {
+      setFile([
+        {
+          uid: String(value.lastModified || Date.now()),
+          name: value.name,
+          status: "done",
+          originFileObj: value,
+        },
+      ]);
+    }
   }, [value]);
 
   return (
-    <Upload listType="picture" maxCount={1} beforeUpload={beforeUpload} customRequest={handleImgChange} onRemove={onRemove} fileList={file} {...props}>
+    <Upload listType="picture" maxCount={1} beforeUpload={beforeUpload} onChange={handleImgChange} onRemove={onRemove} fileList={file} {...props}>
       {file && file.length > 0 && file !== "" ? null : <Button icon={<UploadOutlined />}> {btnName ? `Upload ${btnName}` : ""}</Button>}
     </Upload>
   );

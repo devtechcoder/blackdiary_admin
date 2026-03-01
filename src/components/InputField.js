@@ -11,6 +11,16 @@ export const TextInputBox = ({ label, name, placeholder, rules, cover, className
   );
 };
 
+export const TextAreaInputBox = ({ label, name, placeholder, rules, cover, className, isDisable, inputProps, colProps, ...props }) => {
+  return (
+    <Col md={cover ? cover.md : 12} {...colProps}>
+      <Form.Item className={!!className ? className : ""} label={label} name={name} rules={rules} normalize={(value) => value.trimStart()} {...props}>
+        <Input.TextArea placeholder={placeholder} disabled={isDisable} {...inputProps} autoComplete="off" />
+      </Form.Item>
+    </Col>
+  );
+};
+
 export const SelectInput = ({ label, name, placeholder, options, rules, cover, className, defaultValue, handleChange, colProps, ...props }) => {
   return (
     <Col md={cover ? cover.md : 12} {...colProps}>

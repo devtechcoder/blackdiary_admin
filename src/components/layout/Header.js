@@ -1,55 +1,23 @@
-import {
-  DownOutlined,
-  KeyOutlined,
-  LogoutOutlined,
-  UploadOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Form,
-  Image,
-  Input,
-  Modal,
-  Row,
-  Select,
-  Upload,
-  message,
-} from "antd";
+import { DownOutlined, KeyOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Dropdown, Form, Image, Input, Modal, Row, Select } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { uploadFile } from "react-s3";
 
 import { useNavigate } from "react-router";
-import Logo from "../../assets/images/Logo.png";
-import Notification1 from "../../assets/images/face-1.jpg";
-import Notification2 from "../../assets/images/face-2.jpg";
-import Notification3 from "../../assets/images/face-3.jpg";
+import Logo from "../../assets/images/allLogo/logowithoutbrand.png";
 import notfound from "../../assets/images/not_found.png";
 import Notification from "../../assets/images/notification.svg";
 import DeleteModal from "../../components/DeleteModal";
-import { s3Config } from "../../config/s3Config";
+import SingleImageUpload from "../../components/SingleImageUpload";
 import apiPath from "../../constants/apiPath";
 import { useAppContext } from "../../context/AppContext";
 import { AuthContext } from "../../context/AuthContext";
-import { getFileExtension } from "../../helper/functions";
 import lang from "../../helper/langHelper";
 import { Severty, ShowToast } from "../../helper/toast";
 import useRequest from "../../hooks/useRequest";
 import Prouser from "../../assets/images/user.png";
 
-const { confirm } = Modal;
-
 const toggler = [
-  <svg
-    width="20"
-    height="20"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 448 512"
-    key={0}
-  >
+  <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" key={0}>
     <path d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path>
   </svg>,
 ];
@@ -105,9 +73,7 @@ function Header({ name: sectionHeading, onPress }) {
       onSuccess: ({ data, status }) => {
         if (data) {
           setCountries(data);
-          const selected = data.find(
-            (item) => item._id == userProfile.country_id
-          );
+          const selected = data.find((item) => item._id == userProfile.country_id);
           userProfile.type == "SubAdmin"
             ? setCountry((prev) => ({
                 ...prev,
@@ -142,9 +108,7 @@ function Header({ name: sectionHeading, onPress }) {
             {notification.map((item) => (
               <div key={item._id} className="single-notification">
                 <div className="notification-img">
-                  <img
-                    src={item?.from_id.image ? item?.from_id.image : Prouser}
-                  />
+                  <img src={item?.from_id.image ? item?.from_id.image : Prouser} />
                 </div>
                 <div className="notification-cont">
                   {/* <p>
@@ -160,10 +124,7 @@ function Header({ name: sectionHeading, onPress }) {
             ))}
           </div>
           <div className="viewAll_notification">
-            <Button
-              onClick={() => navigate("/notification")}
-              className="btnStyle btn_primary"
-            >
+            <Button onClick={() => navigate("/notification")} className="btnStyle btn_primary">
               View All
             </Button>
           </div>
@@ -236,8 +197,7 @@ function Header({ name: sectionHeading, onPress }) {
   const onCreate = (values) => {
     const { old_password, new_password } = values;
     const payload = {};
-    if (!old_password || !new_password)
-      return ShowToast("Please enter password ", Severty.ERROR);
+    if (!old_password || !new_password) return ShowToast("Please enter password ", Severty.ERROR);
     setLoading(true);
     payload.new_password = new_password;
     payload.old_password = old_password;
@@ -298,36 +258,21 @@ function Header({ name: sectionHeading, onPress }) {
   return (
     <>
       <Row gutter={[24, 0]} className="justify-content-between mx-0">
-        <Col
-          span={24}
-          xs={24}
-          md={24}
-          lg={12}
-          sm={24}
-          className="SectionMain px-0 left-header"
-        >
+        <Col span={24} xs={24} md={24} lg={12} sm={24} className="SectionMain px-0 left-header">
           <div className="d-none d-lg-block desk-bar">
             {" "}
-            <Button
-              type="link"
-              className="sidebar-toggler ps-0"
-              onClick={() => onPress()}
-            >
+            <Button type="link" className="sidebar-toggler ps-0" onClick={() => onPress()}>
               {toggler}
             </Button>
           </div>
 
           <div className="d-none d-lg-block">{sectionHeading}</div>
           <div className="tabLogo d-sm-block d-lg-none">
-            <img className="w-100" src={Logo} />
+            <img className="w-100" src={profile ? profile?.image : Logo} />
           </div>
         </Col>
         <Col span={24} xs={24} sm={24} lg={12} className="header-control px-0">
-          <Button
-            type="link"
-            className="sidebar-toggler ps-0"
-            onClick={() => onPress()}
-          >
+          <Button type="link" className="sidebar-toggler ps-0" onClick={() => onPress()}>
             {toggler}
           </Button>
 
@@ -367,11 +312,7 @@ function Header({ name: sectionHeading, onPress }) {
 
           <div className="notificationDropdownMain">
             <div className="notification-header d-lg-block">
-              <Dropdown
-                menu={{ items: notificationitems }}
-                trigger={["click"]}
-                className="notification-box"
-              >
+              <Dropdown menu={{ items: notificationitems }} trigger={["click"]} className="notification-box">
                 <Button>
                   <img src={Notification} />
                   <span className="active_notification"></span>
@@ -381,17 +322,11 @@ function Header({ name: sectionHeading, onPress }) {
           </div>
 
           <div className="profileDropdownMain">
-            <Dropdown
-              open={isOpen}
-              onOpenChange={(open) => setIsOpen(open)}
-              className="edit-box"
-              menu={menuProps}
-              trigger={["click"]}
-            >
+            <Dropdown open={isOpen} onOpenChange={(open) => setIsOpen(open)} className="edit-box" menu={menuProps} trigger={["click"]}>
               <Button className="ant-btn ant-btn-default ant-dropdown-trigger ant-dropdown-open">
                 <div className=" d-flex align-items-center gap-2">
                   <div className="userImg">
-                    <Image src={profile ? Logo : Logo} preview={false} />
+                    <Image src={profile ? profile?.image : Logo} preview={false} />
                   </div>
                   <div className="d-none d-xl-block">
                     <div className="userName">
@@ -456,78 +391,77 @@ const EditProfile = ({ show, hide, data, refresh }) => {
   const [form] = Form.useForm();
   const { request } = useRequest();
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState([]);
-  const [image, setImage] = useState([]);
-  const FileType = [
-    "image/png",
-    "image/jpg",
-    "image/jpeg",
-    "image/avif",
-    "image/webp",
-    "image/gif",
-  ];
-
-  const beforeUpload = (file) => {
-    if (FileType.includes(file.type)) {
-    } else {
-      message.error("File format is not correct");
-      return false;
-    }
-    const isLt2M = file.size / 1024 / 1024 < 5;
-    if (!isLt2M) {
-      message.error(`Image must be smaller than 5 MB!`);
-      return false;
-    }
-    return true;
-  };
-
-  const handleChange = async (event) => {
-    const { file } = event;
-    setFile([file]);
-    const extension = getFileExtension(file.name);
-    const name = `PLANIT_${new Date().getTime()}.${extension}`;
-
-    const newFile = new File([file], name, { type: file.type });
-    uploadFile(newFile, s3Config("profile"))
-      .then((data) => {
-        const fileData = {
-          uid: file.uid,
-          name: name,
-          status: "done",
-          url: data.location,
-          thumbUrl: data.location,
-        };
-        setFile([fileData]);
-        setImage(data.location);
-      })
-      .catch((err) => console.error(err));
-  };
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(notfound);
+  const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
 
   useEffect(() => {
-    if (!data) return;
-    form.setFieldsValue({ ...data });
-    //setFile([data.image]);
-    if (data.image != undefined) {
-      setImage(data.image);
-    } else {
-      setImage([notfound]);
+    if (!data) {
+      form.resetFields();
+      setImage(null);
+      setImagePreview(notfound);
+      return;
     }
-  }, [data]);
+    form.setFieldsValue({ ...data });
+    setImage(data?.image || null);
+  }, [data, form]);
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview(notfound);
+      return;
+    }
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      const filePreview = URL.createObjectURL(selectedFile);
+      setImagePreview(filePreview);
+      return () => URL.revokeObjectURL(filePreview);
+    }
+
+    if (typeof image === "string") {
+      setImagePreview(image);
+      return;
+    }
+
+    if (image?.url) {
+      setImagePreview(image.url);
+      return;
+    }
+
+    if (image?.thumbUrl) {
+      setImagePreview(image.thumbUrl);
+      return;
+    }
+
+    setImagePreview(notfound);
+  }, [image]);
+
+  const handleImage = (file) => {
+    setImage(file || null);
+    form.validateFields(["image"]);
+  };
 
   const onEditProfile = (values) => {
     const { email, name } = values;
-
-    if (file.length <= 0 && !image)
-      return ShowToast("Please select the profile Image ", Severty.ERROR);
-    const payload = {};
+    if (!image) return ShowToast("Please select the profile Image ", Severty.ERROR);
+    const payload = new FormData();
     setLoading(true);
-    payload.email = email;
-    payload.name = name;
-    payload.image = file.length > 0 ? file[0].url : null;
+    payload.append("email", email || "");
+    payload.append("name", name || "");
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      payload.append("image", selectedFile);
+    }
+
     request({
       url: apiPath.updateProfile,
       method: "POST",
       data: payload,
+      header: {
+        "Content-Type": "multipart/form-data",
+      },
       onSuccess: (data) => {
         setLoading(false);
         if (data.status) {
@@ -539,7 +473,7 @@ const EditProfile = ({ show, hide, data, refresh }) => {
         }
       },
       onError: (error) => {
-        ShowToast(error.response.data.message, Severty.ERROR);
+        ShowToast(error?.response?.data?.message, Severty.ERROR);
         setLoading(false);
       },
     });
@@ -597,36 +531,30 @@ const EditProfile = ({ show, hide, data, refresh }) => {
           <Col span={24}>
             <Form.Item
               className=""
-              label="Upload Profile"
+              label={lang("Upload Image")}
               name="image"
               rules={[
                 {
-                  required: file.length > 0 ? false : true,
-                  message: "Please enter the profile image!",
+                  validator: () => {
+                    if (!image) {
+                      return Promise.reject(lang("Image is required"));
+                    }
+                    return Promise.resolve();
+                  },
                 },
               ]}
             >
-              <Upload
-                listType="picture"
-                maxCount={1}
-                beforeUpload={beforeUpload}
-                customRequest={handleChange}
-                onRemove={(e) => {
-                  setFile([]);
-                  setImage();
-                }}
-                fileList={file}
-              >
-                {file && file.length > 0 ? null : (
-                  <Button icon={<UploadOutlined />}>Upload</Button>
-                )}
-              </Upload>
-
-              {image && (
-                <div className="mt-3">
-                  <Image width={300} src={image}></Image>
+              <SingleImageUpload value={image} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(data) => handleImage(data)} isDimension={true} />
+              <p className="img-size-details">
+                **
+                {lang("Images  for best view in gallery image. You can select only (.gif, .png, .jpeg, .jpg) format files upto 1 MB file size")}
+                ..!!!
+              </p>
+              {
+                <div className="mt-2">
+                  <Image width={120} src={imagePreview}></Image>
                 </div>
-              )}
+              }
             </Form.Item>
           </Col>
         </Row>
@@ -706,13 +634,7 @@ export const AppSetting = ({ show, hide, data, refresh }) => {
               </Col>
 
               <Col span={24}>
-                <Form.Item
-                  label="Version"
-                  name="android_version"
-                  rules={[
-                    { required: true, message: "Please enter the version!" },
-                  ]}
-                >
+                <Form.Item label="Version" name="android_version" rules={[{ required: true, message: "Please enter the version!" }]}>
                   <Input placeholder="Enter Android Version" />
                 </Form.Item>
               </Col>
@@ -728,12 +650,7 @@ export const AppSetting = ({ show, hide, data, refresh }) => {
                     },
                   ]}
                 >
-                  <Input.TextArea
-                    showCount
-                    maxLength={500}
-                    style={{ height: 120, marginBottom: 15 }}
-                    placeholder="Share Android Content"
-                  />
+                  <Input.TextArea showCount maxLength={500} style={{ height: 120, marginBottom: 15 }} placeholder="Share Android Content" />
                 </Form.Item>
               </Col>
             </Card>
@@ -757,13 +674,7 @@ export const AppSetting = ({ show, hide, data, refresh }) => {
               </Col>
 
               <Col span={24} className="">
-                <Form.Item
-                  label="Version"
-                  name="ios_version"
-                  rules={[
-                    { required: true, message: "Please enter the version!" },
-                  ]}
-                >
+                <Form.Item label="Version" name="ios_version" rules={[{ required: true, message: "Please enter the version!" }]}>
                   <Input placeholder="Enter IOS Version" />
                 </Form.Item>
               </Col>
@@ -779,12 +690,7 @@ export const AppSetting = ({ show, hide, data, refresh }) => {
                     },
                   ]}
                 >
-                  <Input.TextArea
-                    showCount
-                    maxLength={500}
-                    style={{ height: 120, marginBottom: 15 }}
-                    placeholder="Share IOS Content"
-                  />
+                  <Input.TextArea showCount maxLength={500} style={{ height: 120, marginBottom: 15 }} placeholder="Share IOS Content" />
                 </Form.Item>
               </Col>
             </Card>
@@ -816,14 +722,7 @@ const ChangePassword = ({ show, hide, handleCreate }) => {
     >
       <h4 className="modal_title_cls">Change Password</h4>
       <Form id="create" form={form} onFinish={handleCreate} layout="vertical">
-        <Form.Item
-          label="Old Password"
-          name="old_password"
-          hasFeedback
-          rules={[
-            { required: true, message: "Please enter the old password!" },
-          ]}
-        >
+        <Form.Item label="Old Password" name="old_password" hasFeedback rules={[{ required: true, message: "Please enter the old password!" }]}>
           <Input.Password />
         </Form.Item>
         <Form.Item
@@ -834,18 +733,14 @@ const ChangePassword = ({ show, hide, handleCreate }) => {
           rules={[
             { required: true, message: "Please enter the new password!" },
             {
-              pattern: new RegExp(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/
-              ),
+              pattern: new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/),
               message:
                 "New password at least contain 8 characters, at least contain one capital letter, at least contain one small letter, at  least contain one digit, atleast contain one special character",
             },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue("old_password") === value) {
-                  return Promise.reject(
-                    new Error("Old password & new password must be different!")
-                  );
+                  return Promise.reject(new Error("Old password & new password must be different!"));
                 }
                 return Promise.resolve();
               },
@@ -862,9 +757,7 @@ const ChangePassword = ({ show, hide, handleCreate }) => {
           rules={[
             { required: true, message: "Please enter the confirm password!" },
             {
-              pattern: new RegExp(
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/
-              ),
+              pattern: new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/),
               message:
                 "Confirm password atleast contain 8 characters, atleast contain one captital letter, atleast contain one small letter, atleast contain one digit, atleast contain one special character",
             },
@@ -873,9 +766,7 @@ const ChangePassword = ({ show, hide, handleCreate }) => {
                 if (!value || getFieldValue("new_password") === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error("Confirm password & password does not match!")
-                );
+                return Promise.reject(new Error("Confirm password & password does not match!"));
               },
             }),
           ]}

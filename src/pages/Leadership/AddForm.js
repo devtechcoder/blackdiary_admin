@@ -1,40 +1,100 @@
-import { Col, DatePicker, Form, Input, Modal, Radio, Row, Select } from "antd";
+import { Col, Form, Image, Modal, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import { Severty, ShowToast } from "../../helper/toast";
 import useRequest from "../../hooks/useRequest";
 import lang from "../../helper/langHelper";
 import { NumberInputBox, SelectInput, TextInputBox } from "../../components/InputField";
 import DescriptionEditor from "../../components/DescriptionEditor";
+import SingleImageUpload from "../../components/SingleImageUpload";
+import notfound from "../../assets/images/not_found.png";
+
+const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
 
 const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
   const [form] = Form.useForm();
   const { request } = useRequest();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState(data?.description || "");
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(notfound);
+  const [isImageRemove, setIsImageRemove] = useState(false);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data) {
+      form.resetFields();
+      setContent("");
+      setImage(null);
+      setImagePreview(notfound);
+      setIsImageRemove(false);
+      return;
+    }
     form.setFieldsValue({
       ...data,
     });
     setContent(data?.description || "");
-  }, [data]);
+    setImage(data?.image || null);
+    setIsImageRemove(false);
+  }, [data, form]);
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview(notfound);
+      return;
+    }
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      const filePreview = URL.createObjectURL(selectedFile);
+      setImagePreview(filePreview);
+      return () => URL.revokeObjectURL(filePreview);
+    }
+
+    if (typeof image === "string") {
+      setImagePreview(image);
+      return;
+    }
+
+    if (image?.url) {
+      setImagePreview(image.url);
+      return;
+    }
+
+    if (image?.thumbUrl) {
+      setImagePreview(image.thumbUrl);
+      return;
+    }
+
+    setImagePreview(notfound);
+  }, [image]);
 
   const onCreate = (values) => {
-    const payload = {
-      ...values,
-    };
     if (!content.trim() || content === "<p><br></p>" || content === "<p></p>" || content === "<p></p>\n") {
       ShowToast("Please write description in the content box.", Severty.WARNING);
       return;
     }
-    payload.description = content || "";
+    const payload = new FormData();
+    payload.append("name", values.name || "");
+    payload.append("designation", values.designation || "");
+    payload.append("gender", values.gender || "");
+    payload.append("sequence", values.sequence || "");
+    payload.append("description", content || "");
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      payload.append("image", selectedFile);
+    }
+    if (data) {
+      payload.append("isImageRemove", isImageRemove ? true : false);
+    }
 
     setLoading(true);
     request({
       url: `${data ? api.addEdit + "/" + data._id : api.addEdit}`,
       method: data ? "PUT" : "POST",
       data: payload,
+      header: {
+        "Content-Type": "multipart/form-data",
+      },
       onSuccess: (data) => {
         setLoading(false);
         if (data.status) {
@@ -50,6 +110,18 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
         setLoading(false);
       },
     });
+  };
+
+  const handleImage = (file) => {
+    if (!file) {
+      setIsImageRemove(Boolean(data));
+      setImage(null);
+      form.validateFields(["image"]);
+      return;
+    }
+    setIsImageRemove(false);
+    setImage(file || null);
+    form.validateFields(["image"]);
   };
 
   return (
@@ -163,6 +235,35 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
             value={content}
             onChange={setContent}
           />
+          <Col span={24}>
+            <Form.Item
+              className=""
+              label={lang("Upload Image")}
+              name="image"
+              rules={[
+                {
+                  validator: () => {
+                    if (!image) {
+                      return Promise.reject(lang("Image is required"));
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <SingleImageUpload value={image} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(data) => handleImage(data)} isDimension={true} />
+              <p className="img-size-details">
+                **
+                {lang("Images  for best view in gallery image. You can select only (.gif, .png, .jpeg, .jpg) format files upto 1 MB file size")}
+                ..!!!
+              </p>
+              {
+                <div className="mt-2">
+                  <Image width={120} src={imagePreview}></Image>
+                </div>
+              }
+            </Form.Item>
+          </Col>
         </Row>
       </Form>
     </Modal>

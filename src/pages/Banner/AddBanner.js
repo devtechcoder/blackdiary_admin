@@ -1,7 +1,5 @@
 import { Col, DatePicker, Form, Image, Input, InputNumber, Modal, Row, Select, Radio } from "antd";
 import React, { useEffect, useState } from "react";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
 
 import notfound from "../../assets/images/not_found.png";
 import SingleImageUpload from "../../components/SingleImageUpload";
@@ -9,9 +7,7 @@ import apiPath from "../../constants/apiPath";
 import { Severty, ShowToast } from "../../helper/toast";
 import useRequest from "../../hooks/useRequest";
 import moment from "moment";
-import { useAppContext } from "../../context/AppContext";
 import lang from "../../helper/langHelper";
-import BannerImageUpload from "../../components/BannerImageUpload";
 const bannerPositions = [
   { name: "Top banner", label: lang("Top Banner") },
   // { name: "Mid banner", label: "Mid Banner" },
@@ -26,19 +22,75 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState();
   const [mobileImage, setMobileImage] = useState();
+  const [imagePreview, setImagePreview] = useState(notfound);
+  const [mobileImagePreview, setMobileImagePreview] = useState(notfound);
+  const [isImageRemove, setIsImageRemove] = useState(false);
+  const [isMobileImageRemove, setIsMobileImageRemove] = useState(false);
   const [category, setCategory] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const handleImage = (data) => {
-    data ? setImage(data) : setImage();
+  const handleImage = (file) => {
+    if (!file) {
+      setIsImageRemove(Boolean(data?.image));
+      setImage();
+      form.validateFields(["image"]);
+      return;
+    }
+    setIsImageRemove(false);
+    setImage(file);
+    form.validateFields(["image"]);
+  };
+
+  const handleMobileImage = (file) => {
+    if (!file) {
+      setIsMobileImageRemove(Boolean(data?.mobile_image));
+      setMobileImage();
+      return;
+    }
+    setIsMobileImageRemove(false);
+    setMobileImage(file);
   };
 
   const onCreate = (values) => {
-    let payload = {
-      ...values,
-      image: image,
-      mobile_image: mobileImage,
-    };
+    const payload = new FormData();
+    Object.entries(values || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      if (key === "start_date" || key === "end_date") {
+        payload.append(key, value);
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => payload.append(`${key}[]`, item));
+        return;
+      }
+
+      if (typeof value === "boolean") {
+        payload.append(key, value ? "true" : "false");
+        return;
+      }
+
+      payload.append(key, value);
+    });
+
+    const selectedWebImage = image instanceof File ? image : image?.originFileObj;
+    if (selectedWebImage instanceof File) {
+      payload.append("image", selectedWebImage);
+    }
+
+    const selectedMobileImage = mobileImage instanceof File ? mobileImage : mobileImage?.originFileObj;
+    if (selectedMobileImage instanceof File) {
+      payload.append("mobile_image", selectedMobileImage);
+    }
+    if (data && isImageRemove) {
+      payload.append("isImageRemove", "true");
+    }
+    if (data && isMobileImageRemove) {
+      payload.append("isMobileImageRemove", "true");
+    }
 
     setLoading(true);
 
@@ -46,6 +98,9 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
       url: data ? apiPath.banner + "/" + data._id : apiPath.banner,
       method: data ? "PUT" : "POST",
       data: payload,
+      header: {
+        "Content-Type": "multipart/form-data",
+      },
       onSuccess: (data) => {
         setLoading(false);
         console.log("data", data);
@@ -58,24 +113,97 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
         }
       },
       onError: (error) => {
-        ShowToast(error.response.data.message, Severty.ERROR);
+        ShowToast(error?.response?.data?.message, Severty.ERROR);
         setLoading(false);
       },
     });
   };
 
   useEffect(() => {
-    if (!!data) {
-      form.setFieldsValue({
-        ...data,
-        start_date: moment(data.start_date),
-        end_date: moment(data.end_date),
-      });
-
-      setImage(data.image);
-      setMobileImage(data?.mobile_image);
+    if (!data) {
+      form.resetFields();
+      setImage(undefined);
+      setMobileImage(undefined);
+      setImagePreview(notfound);
+      setMobileImagePreview(notfound);
+      setIsImageRemove(false);
+      setIsMobileImageRemove(false);
+      return;
     }
-  }, [data]);
+
+    form.setFieldsValue({
+      ...data,
+      start_date: moment(data.start_date),
+      end_date: moment(data.end_date),
+    });
+
+    setImage(data.image);
+    setMobileImage(data?.mobile_image);
+    setIsImageRemove(false);
+    setIsMobileImageRemove(false);
+  }, [data, form]);
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview(notfound);
+      return;
+    }
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      const filePreview = URL.createObjectURL(selectedFile);
+      setImagePreview(filePreview);
+      return () => URL.revokeObjectURL(filePreview);
+    }
+
+    if (typeof image === "string") {
+      setImagePreview(image);
+      return;
+    }
+
+    if (image?.url) {
+      setImagePreview(image.url);
+      return;
+    }
+
+    if (image?.thumbUrl) {
+      setImagePreview(image.thumbUrl);
+      return;
+    }
+
+    setImagePreview(notfound);
+  }, [image]);
+
+  useEffect(() => {
+    if (!mobileImage) {
+      setMobileImagePreview(notfound);
+      return;
+    }
+
+    const selectedFile = mobileImage instanceof File ? mobileImage : mobileImage?.originFileObj;
+    if (selectedFile instanceof File) {
+      const filePreview = URL.createObjectURL(selectedFile);
+      setMobileImagePreview(filePreview);
+      return () => URL.revokeObjectURL(filePreview);
+    }
+
+    if (typeof mobileImage === "string") {
+      setMobileImagePreview(mobileImage);
+      return;
+    }
+
+    if (mobileImage?.url) {
+      setMobileImagePreview(mobileImage.url);
+      return;
+    }
+
+    if (mobileImage?.thumbUrl) {
+      setMobileImagePreview(mobileImage.thumbUrl);
+      return;
+    }
+
+    setMobileImagePreview(notfound);
+  }, [mobileImage]);
 
   const getCategory = () => {
     request({
@@ -165,7 +293,7 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
               label={lang("Upload Banner Image (WEB)")}
               name="image"
             >
-              <SingleImageUpload value={image} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(data) => handleImage(data)} isDimension={true} />
+              <SingleImageUpload value={image} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(file) => handleImage(file)} isDimension={true} />
               <p className="img-size-details">
                 **
                 {lang("Images should be 600x400 for best view in gallery image. You can select only (.gif, .png, .jpeg, .jpg) format files upto 1 MB file size")}
@@ -173,7 +301,7 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
               </p>
               {
                 <div className="mt-2">
-                  <Image width={120} src={image ? image : notfound}></Image>
+                  <Image width={120} src={imagePreview}></Image>
                 </div>
               }
             </Form.Item>
@@ -192,9 +320,9 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
               //   },
               // ]}
               label={lang("Upload Banner Image (APP)")}
-              name="image"
+              name="mobile_image"
             >
-              <SingleImageUpload value={mobileImage} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(data) => setMobileImage(data)} isDimension={true} />
+              <SingleImageUpload value={mobileImage} fileType={FileType} btnName={"Image"} imageType="advertisement" onChange={(file) => handleMobileImage(file)} isDimension={true} />
               <p className="img-size-details">
                 **
                 {lang("Images should be 600x400 for best view in gallery image. You can select only (.gif, .png, .jpeg, .jpg) format files upto 1 MB file size")}
@@ -202,7 +330,7 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
               </p>
               {
                 <div className="mt-2">
-                  <Image width={120} src={mobileImage ? mobileImage : notfound}></Image>
+                  <Image width={120} src={mobileImagePreview}></Image>
                 </div>
               }
             </Form.Item>
@@ -296,10 +424,10 @@ const AdvertisementBannerForm = ({ section, show, hide, data, refresh }) => {
               ]}
             >
               <Select getPopupContainer={(triggerNode) => triggerNode.parentNode} placeholder={lang("Select Banner Position")} className="w-100">
-                {bannerPositions.map((item, index) => (
-                  <option key={item.name} value={item.name}>
-                    <span className="cap">{item.label}</span>
-                  </option>
+                {bannerPositions.map((item) => (
+                  <Select.Option key={item.name} value={item.name}>
+                    {item.label}
+                  </Select.Option>
                 ))}
               </Select>
             </Form.Item>
