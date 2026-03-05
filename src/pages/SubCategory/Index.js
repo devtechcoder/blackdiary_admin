@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 
 import notfound from "../../assets/images/not_found.png";
 import Plus from "../../assets/images/plus.svg";
-import ConfirmationBox from "../../components/ConfirmationBox";
 import SectionWrapper from "../../components/SectionWrapper";
 import apiPath from "../../constants/apiPath";
 import { Severty, ShowToast } from "../../helper/toast";
@@ -50,16 +49,6 @@ function Index() {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const debouncedSearchText = useDebounce(searchText, 300);
   const [exportLoading, setExportLoading] = useState(false);
-
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      setSelectedIds(selectedRowKeys);
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User", // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
 
   const handleChangeStatus = (id) => {
     request({
