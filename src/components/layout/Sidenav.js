@@ -6,6 +6,17 @@ import Cms from "../../assets/images/side_nav/cms.svg";
 import Coust from "../../assets/images/side_nav/customer.svg";
 import Dash from "../../assets/images/side_nav/dash.svg";
 import Log from "../../assets/images/side_nav/log.svg";
+import CategoryIcon from "../../assets/images/side_nav/cath.svg";
+import SubCategoryIcon from "../../assets/images/side_nav/sub.svg";
+import OccasionIcon from "../../assets/images/side_nav/star.svg";
+import FeedIcon from "../../assets/images/side_nav/blog.svg";
+import LeadershipIcon from "../../assets/images/side_nav/user.svg";
+import BannerIcon from "../../assets/images/side_nav/notification.svg";
+import MasterIcon from "../../assets/images/side_nav/bi_collection.svg";
+import SettingIcon from "../../assets/images/side_nav/file.svg";
+import SocialIcon from "../../assets/images/side_nav/chat.svg";
+import SeoIcon from "../../assets/images/side_nav/blog.svg";
+import EnquiryIcon from "../../assets/images/side_nav/chat.svg";
 import Logo from "../../assets/images/allLogo/logowithoutbrand.png";
 import { AuthContext } from "../../context/AuthContext";
 import lang from "../../helper/langHelper";
@@ -45,31 +56,37 @@ export const menuItems = [
     key: "category-manager",
     path: "/category",
     label: `${lang("Category")} ${lang("Management")}`,
-    icon: Coust,
+    icon: CategoryIcon,
   },
   {
     key: "sub-category-manager",
     path: "/sub-category",
     label: `${lang("Sub Category")} ${lang("Management")}`,
-    icon: Coust,
+    icon: SubCategoryIcon,
   },
   {
     key: "occasion-manager",
     path: "/occasion",
     label: `${lang("Occasion")} ${lang("Management")}`,
-    icon: Coust,
+    icon: OccasionIcon,
   },
   {
     key: "diary-manager",
     path: "/diary",
     label: `${lang("Feed")} ${lang("Management")}`,
-    icon: Coust,
+    icon: FeedIcon,
   },
   {
     key: "leadership-management",
     path: "/leadership",
-    icon: Cms,
+    icon: LeadershipIcon,
     label: `${lang("Leadership")} ${lang("Management")}`,
+  },
+  {
+    key: "enquiry-management",
+    path: "/enquiry",
+    icon: EnquiryIcon,
+    label: "Enquiry Management",
   },
   {
     key: "cms-management",
@@ -80,36 +97,42 @@ export const menuItems = [
   {
     key: "banner-management",
     path: "/banner",
-    icon: Cms,
+    icon: BannerIcon,
     label: `${lang("Banner")} ${lang("Management")}`,
   },
   {
     key: "master-management",
-    icon: Cms,
+    icon: MasterIcon,
     label: `${lang("Master")} ${lang("Management")}`,
     children: Object.entries(masterSubMenu).map(([key, value]) => ({
       key: `/master/${key}`,
       path: `/master/${key}`,
-      icon: Cms,
+      icon: MasterIcon,
       label: value,
     })),
   },
   {
     key: "setting-management",
-    icon: Cms,
+    icon: SettingIcon,
     label: "Setting Management",
     children: [
       {
         key: "/setting/social",
         path: "/setting/social",
-        icon: Cms,
+        icon: SocialIcon,
         label: "Social Media",
       },
       {
         key: "/setting/general",
         path: "/setting/general",
-        icon: Cms,
+        icon: SettingIcon,
         label: "General",
+      },
+      {
+        key: "/seo",
+        path: "/seo",
+        icon: SeoIcon,
+        label: "SEO",
       },
     ],
   },

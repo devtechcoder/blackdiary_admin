@@ -26,6 +26,10 @@ let apiPath = {
   // Customer APIs
   listCustomer: "admin/customer",
 
+  // Enquiry APIs
+  listEnquiry: "admin/enquiries",
+  enquiryStatus: "admin/enquiries",
+
   // Leadership APIs
   listLeadership: "admin/leadership",
 
@@ -69,12 +73,16 @@ let apiPath = {
   listMasters: "admin/master",
   addEditMasters: "admin/master",
 
+  // SEO
+  listSeo: "admin/seo",
+
   common: {
     categories: "common/categories",
     subCategories: "common/sub-categories",
     getUsers: "common/customer",
     getOccasion: "common/occasion",
     imageUpload: "common/image-upload",
+    getSeo: "common/get-seo",
   },
 };
 

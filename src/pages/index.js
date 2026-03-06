@@ -9,5 +9,8 @@ import Occasion from "./Occasion/Index";
 import Leadership from "./Leadership/Index";
 import Settings from "./Setting/Index";
 import Masters from "./Masters/Index";
+import Seo from "./Seo/Index";
+import Enquiry from "./Enquiry/Index";
+import ViewEnquiry from "./Enquiry/View";
 
-export { Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership };
+export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry };

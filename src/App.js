@@ -19,7 +19,7 @@ import Home from "./pages/Auth/Home";
 import SignIn from "./pages/Auth/SignIn";
 import Error from "./pages/Error";
 
-import { Masters, Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership } from "./pages";
+import { Seo, Masters, Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry } from "./pages";
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
 function App() {
@@ -60,6 +60,8 @@ const AppRoutes = () => {
         <Route exact path="/dashboard" element={<Home />} />
         <Route exact path="/customer" element={<Customer />} />
         <Route exact path="/leadership" element={<Leadership />} />
+        <Route exact path="/enquiry" element={<Enquiry />} />
+        <Route exact path="/enquiry/:id" element={<ViewEnquiry />} />
         {/* category */}
         <Route exact path="/category" element={<Category />} />
         <Route exact path="/occasion" element={<Occasion />} />
@@ -74,6 +76,7 @@ const AppRoutes = () => {
 
         {/* Settings */}
         <Route exact path="/setting/:slug" element={<Settings />} />
+        <Route exact path="/seo" element={<Seo />} />
         {/* Masters */}
         <Route exact path="/master/:slug" element={<Masters />} />
       </Route>
