@@ -13,10 +13,21 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
   const { request } = useRequest();
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
-  const [image, setImage] = useState();
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(notfound);
+  const [isImageRemove, setIsImageRemove] = useState(false);
   const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
-  const handleImage = (data) => {
-    data ? setImage(data) : setImage();
+
+  const handleImage = (file) => {
+    if (!file) {
+      setIsImageRemove(Boolean(data));
+      setImage(null);
+      form.validateFields(["image"]);
+      return;
+    }
+    setIsImageRemove(false);
+    setImage(file || null);
+    form.validateFields(["image"]);
   };
   const getCategory = () => {
     request({
@@ -39,19 +50,75 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
   }, []);
 
   useEffect(() => {
-    if (!data) return;
-    console.log(data);
+    if (!data) {
+      form.resetFields();
+      setImage(null);
+      setImagePreview(notfound);
+      setIsImageRemove(false);
+      return;
+    }
     form.setFieldsValue({ ...data });
-    setImage(data.image);
-  }, [data]);
+    setImage(data?.image || null);
+    setIsImageRemove(false);
+  }, [data, form]);
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview(notfound);
+      return;
+    }
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      const filePreview = URL.createObjectURL(selectedFile);
+      setImagePreview(filePreview);
+      return () => URL.revokeObjectURL(filePreview);
+    }
+
+    if (typeof image === "string") {
+      setImagePreview(image);
+      return;
+    }
+
+    if (image?.url) {
+      setImagePreview(image.url);
+      return;
+    }
+
+    if (image?.thumbUrl) {
+      setImagePreview(image.thumbUrl);
+      return;
+    }
+
+    setImagePreview(notfound);
+  }, [image]);
 
   const onCreate = (values) => {
-    const payload = { ...values, image: image };
     setLoading(true);
+    const payload = new FormData();
+    payload.append("name", values.name || "");
+    payload.append("hi_name", values.hi_name || "");
+    payload.append("sort_number", values.sort_number || "");
+    payload.append("is_active", values.is_active ?? true);
+    payload.append("is_featured", values.is_featured ? true : false);
+    payload.append("bg_color", values.bg_color || "");
+    payload.append("category", JSON.stringify(values.category || []));
+
+    const selectedFile = image instanceof File ? image : image?.originFileObj;
+    if (selectedFile instanceof File) {
+      payload.append("image", selectedFile);
+    }
+    if (data) {
+      payload.append("isImageRemove", isImageRemove ? true : false);
+    }
+
     request({
       url: `${data ? api.addEdit + "/" + data._id : api.addEdit}`,
       method: data ? "PUT" : "POST",
       data: payload,
+      header: {
+        "Content-Type": "multipart/form-data",
+      },
       onSuccess: (data) => {
         setLoading(false);
         if (data.status) {
@@ -251,7 +318,7 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
               </p>
               {
                 <div className="mt-2">
-                  <Image width={120} src={image ? image : notfound}></Image>
+                  <Image width={120} src={imagePreview}></Image>
                 </div>
               }
             </Form.Item>

@@ -4,10 +4,13 @@ let URL;
 
 console.log("appMode", appMode);
 
-// 3.20.147.34
-
-URL = "https://blackdiary.onrender.com/api/";
-// URL = "http://localhost:7900/api/";
+if (appMode === "development") {
+  URL = process.env.REACT_APP_DEV_API_BASE_URL;
+  ASSET_URL = process.env.REACT_APP_DEV_API_LOCAL_ASSET_URL;
+} else {
+  URL = process.env.REACT_APP_PROD_API_BASE_URL;
+  ASSET_URL = process.env.REACT_APP_PROD_API_ASSET_URL;
+}
 
 let apiPath = {
   baseURL: URL,
