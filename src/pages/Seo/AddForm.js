@@ -1,6 +1,6 @@
 import { Collapse, Form, Modal, Row } from "antd";
 import React, { useEffect, useState } from "react";
-import { SelectInput, TextAreaInputBox, TextInputBox } from "../../components/InputField";
+import { TextAreaInputBox, TextInputBox } from "../../components/InputField";
 import lang from "../../helper/langHelper";
 import { Severty, ShowToast } from "../../helper/toast";
 import useRequest from "../../hooks/useRequest";
@@ -15,13 +15,11 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
   useEffect(() => {
     if (!data) {
       form.resetFields();
-      form.setFieldsValue({ section: "page" });
       return;
     }
 
     form.setFieldsValue({
-      section: data.section || "page",
-      page_key: data.page_key || "",
+      slug: data.slug || "",
       primary: {
         title: data?.primary?.title || "",
         description: data?.primary?.description || "",
@@ -44,24 +42,16 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
         site_name: data?.twitter?.site_name || "",
       },
       common: {
-        title: data?.common?.title || "",
+        canonical: data?.common?.canonical || "",
         robots: data?.common?.robots || "",
-        language: data?.common?.language || "",
         author: data?.common?.author || "",
-        description: data?.common?.description || "",
-        keywords: data?.common?.keywords || "",
-        image: data?.common?.image || "",
-        url: data?.common?.url || "",
-        type: data?.common?.type || "",
-        site_name: data?.common?.site_name || "",
       },
     });
   }, [data, form]);
 
   const onCreate = (values) => {
     const payload = {
-      section: values.section || "page",
-      page_key: values.page_key || "",
+      slug: values.slug || "",
       primary: values.primary || {},
       openGraph: values.openGraph || {},
       twitter: values.twitter || {},
@@ -107,28 +97,19 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
       centered
       className="tab_modal"
     >
-      <Form id="create" form={form} onFinish={onCreate} layout="vertical" initialValues={{ section: "page" }}>
+      <Form id="create" form={form} onFinish={onCreate} layout="vertical">
         <h4 className="modal_title_cls">{data ? lang(`Edit ${sectionName}`) : lang(`Add New ${sectionName}`)}</h4>
         <Row gutter={[16, 0]}>
-          <SelectInput
-            label={lang("Section")}
-            name="section"
-            rules={[{ required: true, message: lang("Section is required") }]}
-            placeholder={lang("Select Section")}
-            options={[
-              { _id: "page", name: "page" },
-              { _id: "common", name: "common" },
-            ]}
-          />
           <TextInputBox
-            label={lang("Page Key")}
-            name="page_key"
+            label={lang("Slug")}
+            name="slug"
             rules={[
-              { required: true, message: lang("Page key is required") },
-              { pattern: /^[a-zA-Z0-9_-]+$/, message: lang("Use only letters, numbers, underscore and hyphen") },
+              { required: true, message: lang("Slug is required") },
+              { pattern: /^\/.*$/, message: lang("Slug must start with /") },
             ]}
-            inputProps={{ maxLength: 100 }}
-            placeholder={lang("Example: home, login, subCategoryDetailsPage")}
+            inputProps={{ maxLength: 255 }}
+            placeholder={lang("Example: /, /login, /poets")}
+            colProps={{ xs: 24, md: 24 }}
           />
         </Row>
 
@@ -165,16 +146,9 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
 
           <Panel header="Common" key="common">
             <Row gutter={[16, 0]}>
-              <TextInputBox label="Title" name={["common", "title"]} placeholder="Common title" />
+              <TextInputBox label="Canonical URL" name={["common", "canonical"]} placeholder="https://..." rules={commonUrlRules} />
               <TextInputBox label="Robots" name={["common", "robots"]} placeholder="index, follow" />
-              <TextInputBox label="Language" name={["common", "language"]} placeholder="hi" />
               <TextInputBox label="Author" name={["common", "author"]} placeholder="Author name" />
-              <TextAreaInputBox label="Description" name={["common", "description"]} placeholder="Common description" colProps={{ xs: 24, md: 24 }} inputProps={{ rows: 3 }} />
-              <TextAreaInputBox label="Keywords" name={["common", "keywords"]} placeholder="Comma separated keywords" colProps={{ xs: 24, md: 24 }} inputProps={{ rows: 2 }} />
-              <TextInputBox label="Image URL" name={["common", "image"]} placeholder="https://..." rules={commonUrlRules} />
-              <TextInputBox label="URL" name={["common", "url"]} placeholder="https://..." rules={commonUrlRules} />
-              <TextInputBox label="Type" name={["common", "type"]} placeholder="website" />
-              <TextInputBox label="Site Name" name={["common", "site_name"]} placeholder="Black Diary" />
             </Row>
           </Panel>
         </Collapse>

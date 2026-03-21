@@ -85,7 +85,7 @@ let apiPath = {
     getUsers: "common/customer",
     getOccasion: "common/occasion",
     imageUpload: "common/image-upload",
-    getSeo: "common/get-seo",
+    getSeo: "seo",
   },
 };
 

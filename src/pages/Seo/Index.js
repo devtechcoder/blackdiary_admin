@@ -38,16 +38,10 @@ function Index() {
 
   const columns = [
     {
-      title: "Page Key",
-      dataIndex: "page_key",
-      key: "page_key",
-      render: (_, { page_key }) => (page_key ? <span>{page_key}</span> : "-"),
-    },
-    {
-      title: "Section",
-      dataIndex: "section",
-      key: "section",
-      render: (_, { section }) => (section ? <span>{section}</span> : "-"),
+      title: "Slug",
+      dataIndex: "slug",
+      key: "slug",
+      render: (_, { slug }) => (slug ? <span>{slug}</span> : "-"),
     },
     {
       title: "Primary Title",
@@ -55,10 +49,15 @@ function Index() {
       render: (_, record) => (record?.primary?.title ? <span>{record.primary.title}</span> : "-"),
     },
     {
-      title: "Created On",
-      key: "created_at",
-      dataIndex: "created_at",
-      render: (_, { created_at }) => moment(created_at).format("DD-MMM-YYYY"),
+      title: "Canonical",
+      key: "canonical",
+      render: (_, record) => (record?.common?.canonical ? <span>{record.common.canonical}</span> : "-"),
+    },
+    {
+      title: "Updated On",
+      key: "updatedAt",
+      dataIndex: "updatedAt",
+      render: (_, { updatedAt }) => (updatedAt ? moment(updatedAt).format("DD-MMM-YYYY") : "-"),
     },
     {
       title: "Action",
