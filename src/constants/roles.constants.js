@@ -35,6 +35,10 @@ export const ROLES = {
     label: "Banner Management",
     value: "banner",
   },
+  faq: {
+    label: "FAQ Management",
+    value: "faq",
+  },
   collection: {
     label: "Collection Management",
     value: "collection",

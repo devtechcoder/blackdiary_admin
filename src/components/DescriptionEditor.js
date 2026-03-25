@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EditorState, ContentState, convertFromHTML } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -7,6 +7,7 @@ import { Col } from "antd";
 
 const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const lastSyncedValueRef = useRef("");
 
   // const handleEditorChange = (newEditorState) => {
   //   setEditorState(newEditorState);
@@ -30,6 +31,8 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
       },
     });
 
+    lastSyncedValueRef.current = htmlContent;
+
     if (onChange) {
       onChange(htmlContent);
     }
@@ -37,7 +40,12 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
 
   useEffect(() => {
     if (!value || typeof value !== "string") {
+      lastSyncedValueRef.current = "";
       setEditorState(EditorState.createEmpty());
+      return;
+    }
+
+    if (value === lastSyncedValueRef.current) {
       return;
     }
 
@@ -46,13 +54,15 @@ const DescriptionEditor = ({ onChange, placeholder, value, cover, colProps }) =>
     const entityMap = blocksFromHTML?.entityMap || {};
 
     if (!contentBlocks.length) {
+      lastSyncedValueRef.current = value;
       setEditorState(EditorState.createWithContent(ContentState.createFromText("")));
       return;
     }
 
     const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
+    lastSyncedValueRef.current = value;
     setEditorState(EditorState.createWithContent(content));
-  }, []);
+  }, [value]);
 
   return (
     <Col md={cover ? cover.md : 24} {...colProps}>

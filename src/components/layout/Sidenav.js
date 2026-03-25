@@ -12,6 +12,7 @@ import OccasionIcon from "../../assets/images/side_nav/star.svg";
 import FeedIcon from "../../assets/images/side_nav/blog.svg";
 import LeadershipIcon from "../../assets/images/side_nav/user.svg";
 import BannerIcon from "../../assets/images/side_nav/notification.svg";
+import FaqIcon from "../../assets/images/side_nav/chat.svg";
 import MasterIcon from "../../assets/images/side_nav/bi_collection.svg";
 import SettingIcon from "../../assets/images/side_nav/file.svg";
 import SocialIcon from "../../assets/images/side_nav/chat.svg";
@@ -99,6 +100,12 @@ export const menuItems = [
     path: "/banner",
     icon: BannerIcon,
     label: `${lang("Banner")} ${lang("Management")}`,
+  },
+  {
+    key: "faq-management",
+    path: "/faq",
+    icon: FaqIcon,
+    label: `${lang("FAQ")} ${lang("Management")}`,
   },
   {
     key: "master-management",

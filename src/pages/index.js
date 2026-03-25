@@ -12,5 +12,6 @@ import Masters from "./Masters/Index";
 import Seo from "./Seo/Index";
 import Enquiry from "./Enquiry/Index";
 import ViewEnquiry from "./Enquiry/View";
+import FAQ from "./FAQ/Index";
 
-export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry };
+export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ };

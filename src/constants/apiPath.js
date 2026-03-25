@@ -43,6 +43,10 @@ let apiPath = {
   banner: "admin/banner",
   statusBanner: "admin/banner/status",
 
+  // FAQ APIs
+  listFaq: "admin/faq",
+  statusFaq: "admin/faq/status",
+
   // Content APIs
   content: "admin/content",
 
