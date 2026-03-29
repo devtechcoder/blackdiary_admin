@@ -28,6 +28,7 @@ let apiPath = {
 
   // Customer APIs
   listCustomer: "admin/customer",
+  checkCustomerUserName: "admin/customer/check-user-name",
 
   // Enquiry APIs
   listEnquiry: "admin/enquiries",
@@ -71,6 +72,9 @@ let apiPath = {
   // sub category
   listSubCategory: "admin/sub-category",
   statusSubCategory: "admin/sub-category/status",
+
+  // keyword emotion
+  keywordEmotion: "keyword-emotion",
 
   // Settings
   listSettings: "admin/setting",

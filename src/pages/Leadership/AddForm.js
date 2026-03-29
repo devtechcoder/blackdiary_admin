@@ -160,8 +160,8 @@ const AddForm = ({ api, show, hide, data, refresh, sectionName }) => {
                 message: lang("Name is required"),
               },
               {
-                max: 20,
-                message: lang("Name should not contain more then 20 characters!"),
+                max: 100,
+                message: lang("Name should not contain more then 100 characters!"),
               },
               {
                 min: 2,

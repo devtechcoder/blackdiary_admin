@@ -1,6 +1,6 @@
 import axios from "axios";
 import apiPath from "../constants/apiPath";
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useAppContext } from "../context/AppContext";
 import { Severty, ShowToast } from "../helper/toast";
@@ -13,7 +13,7 @@ const useRequest = () => {
   const { logout } = useContext(AuthContext);
   const { country } = useAppContext();
 
-  const request = async ({
+  const request = useCallback(async ({
     url,
     method: tmethod,
     data,
@@ -77,7 +77,7 @@ const useRequest = () => {
       }
       // throw err;
     }
-  };
+  }, [country?.country_id, logout]);
 
   return { request };
 };

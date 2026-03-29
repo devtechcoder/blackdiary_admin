@@ -122,7 +122,7 @@ function Index() {
       dataIndex: "user_name",
       key: "user_name",
       render: (_, { user_name }) => {
-        return user_name ? <span classuser_name="cap">{user_name}</span> : "-";
+        return user_name ? <span className="cap">{user_name}</span> : "-";
       },
     },
     {

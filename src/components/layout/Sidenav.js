@@ -66,6 +66,12 @@ export const menuItems = [
     icon: SubCategoryIcon,
   },
   {
+    key: "keyword-emotion-management",
+    path: "/keyword-emotion",
+    label: `${lang("Keyword / Emotions")} ${lang("Management")}`,
+    icon: FaqIcon,
+  },
+  {
     key: "occasion-manager",
     path: "/occasion",
     label: `${lang("Occasion")} ${lang("Management")}`,

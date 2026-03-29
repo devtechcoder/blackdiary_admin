@@ -1,355 +1,604 @@
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppStateContext } from "../../context/AppContext";
+import { useAuthContext } from "../../context/AuthContext";
+import useRequest from "../../hooks/useRequest";
+import apiPath from "../../constants/apiPath";
+import { Severty, ShowToast } from "../../helper/toast";
+import lang from "../../helper/langHelper";
+import moment from "moment";
+
 import {
+  Button,
   Card,
   Col,
-  Progress,
-  Radio,
+  Empty,
   Row,
   Select,
-  Skeleton,
+  Space,
+  Spin,
   Tabs,
+  Tag,
   Typography,
-  Descriptions,
-  Table,
 } from "antd";
-import React, { useContext, useEffect, useState } from "react";
-import apiPath from "../../constants/apiPath";
-import { AppStateContext } from "../../context/AppContext";
-import { Severty, ShowToast } from "../../helper/toast";
-import useRequest from "../../hooks/useRequest";
-import { useNavigate } from "react-router";
-import { useAuthContext } from "../../context/AuthContext";
+import {
+  AppstoreAddOutlined,
+  BarChartOutlined,
+  CalendarOutlined,
+  FolderOpenOutlined,
+  LineChartOutlined,
+  ReloadOutlined,
+  TagsOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler } from "chart.js";
+import { Doughnut, Line } from "react-chartjs-2";
+
+import StatsCard from "../../components/dashboard/StatsCard";
+import ChartSection from "../../components/dashboard/ChartSection";
+import TrendingList from "../../components/dashboard/TrendingList";
+import ActivityFeed from "../../components/dashboard/ActivityFeed";
 import { formatPhone } from "../../helper/functions";
-import lang from "../../helper/langHelper";
-import SectionWrapper from "../../components/SectionWrapper";
 
-import ServicesPerCategory from "./_ServicesPerCategory";
-import BannerClicks from "./_BannerClicks";
-import moment from "moment";
-import MonthlyChartSection from "./_MonthlyChartSection";
-import QuarterlyChartSection from "./_QuartlyChartSection";
-import WeeklyChartSection from "./_WeeklyChartSection";
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler);
 
-const { TabPane } = Tabs;
 const { Title, Text } = Typography;
+const { TabPane } = Tabs;
 
-const years = [2024];
+const rangeOptions = [
+  { label: "Last 7 days", value: 7 },
+  { label: "Last 30 days", value: 30 },
+];
+
+const quickActions = [
+  {
+    label: "Add Shayari",
+    icon: <FileTextOutlined />,
+    path: "/diary-add-edit?type=shayari",
+  },
+  {
+    label: "Add Sher",
+    icon: <BarChartOutlined />,
+    path: "/diary-add-edit?type=post",
+  },
+  {
+    label: "Add Keyword",
+    icon: <TagsOutlined />,
+    path: "/keyword-emotion",
+  },
+  {
+    label: "Add Category",
+    icon: <FolderOpenOutlined />,
+    path: "/category",
+  },
+];
+
+const formatAgo = (value) => {
+  if (!value) return "-";
+  return moment(value).fromNow();
+};
 
 function Home() {
-  const { setPageHeading, country } = useContext(AppStateContext);
-
+  const { setPageHeading } = useContext(AppStateContext);
   const { request } = useRequest();
+  const { userProfile } = useAuthContext();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
-  const [year, setYear] = useState(years[0]);
-  const [filter, setFilter] = useState("State");
-  const { userProfile, isAdmin } = useAuthContext();
-  const [dashboard, setDashboard] = useState();
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 3,
-    total: 0,
-  });
+  const [dashboard, setDashboard] = useState(null);
+  const [range, setRange] = useState(30);
 
-  const count = [
-    {
-      today: "Number of Students",
-      title: `${dashboard && dashboard ? dashboard.totalCustomer : 0}`,
-      persent: "10%",
-      icon: <i class="fas fa-user-friends"></i>,
-      bnb: "bnb2",
-      url: "/customer",
-      key: "totalCustomer",
-      _7Day: dashboard && (dashboard.user7 ?? 0),
-      _14Day: dashboard && (dashboard.user14 ?? 0),
-    },
-    {
-      today: "Number of Active Students",
-      title: `${
-        dashboard && dashboard.activeCustomer ? dashboard.activeCustomer : 0
-      }`,
-      icon: <i class="fas fa-people-carry"></i>,
-      bnb: "bnb2",
-      url: `/customer?status=${true}`,
-      key: "activeCustomer",
-      _7Day: dashboard && (dashboard.activeUser7 ?? 0),
-      _14Day: dashboard && (dashboard.activeUser14 ?? 0),
-    },
-    {
-      today: "Number of Teachers",
-      title: `${dashboard && dashboard ? dashboard.totalCustomer : 0}`,
-      persent: "10%",
-      icon: <i class="fas fa-user-friends"></i>,
-      bnb: "bnb2",
-      url: "/customer",
-      key: "totalCustomer",
-      _7Day: dashboard && (dashboard.user7 ?? 0),
-      _14Day: dashboard && (dashboard.user14 ?? 0),
-    },
-    {
-      today: "Number of Active Teachers",
-      title: `${
-        dashboard && dashboard.activeCustomer ? dashboard.activeCustomer : 0
-      }`,
-      icon: <i class="fas fa-people-carry"></i>,
-      bnb: "bnb2",
-      url: `/customer?status=${true}`,
-      key: "activeCustomer",
-      _7Day: dashboard && (dashboard.activeUser7 ?? 0),
-      _14Day: dashboard && (dashboard.activeUser14 ?? 0),
-    },
-
-    {
-      today: "Number of Quotation",
-      title: `${dashboard && dashboard.totalSales ? dashboard.totalSales : 0}`,
-      icon: <i class="fas fa-copyright"></i>,
-      bnb: "bnb2",
-      url: "/quotation-request",
-      key: "totalRestaurant",
-      _7Day: dashboard && (dashboard.restaurant7 ?? 0),
-      _14Day: dashboard && (dashboard.restaurant14 ?? 0),
-    },
-    {
-      today: "Number of Pending Quotation",
-      title: `${dashboard && dashboard.totalSales ? dashboard.totalSales : 0}`,
-      icon: <i class="fas fa-copyright"></i>,
-      bnb: "bnb2",
-      url: "/quotation-request",
-      key: "totalSales",
-      _7Day: dashboard && (dashboard.restaurant7 ?? 0),
-      _14Day: dashboard && (dashboard.restaurant14 ?? 0),
-    },
-  ];
-
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-    setYear(value);
-  };
+  const canViewDashboard = useMemo(() => {
+    if (!userProfile) return false;
+    if (userProfile.type !== "Teacher") return true;
+    return !!userProfile?.permission?.includes("dashboard-management");
+  }, [userProfile]);
 
   useEffect(() => {
-    setPageHeading(lang("Welcome Admin"));
     if (!userProfile) return;
 
-    if (userProfile.type == "Teacher") {
-      setPageHeading(`Welcome ${userProfile.name}`);
-      if (!userProfile?.permission?.includes("dashboard-management")) return;
+    if (userProfile.type === "Teacher" && !userProfile?.permission?.includes("dashboard-management")) {
+      setPageHeading(`Welcome ${userProfile?.name || "User"}`);
+      return;
     }
+
+    setPageHeading(lang("Dashboard Overview"));
+  }, [setPageHeading, userProfile]);
+
+  useEffect(() => {
+    if (!userProfile || !canViewDashboard) return;
 
     setLoading(true);
     request({
-      url: apiPath.dashboard + `${year ? `?year=${year}` : ""}`,
+      url: `${apiPath.dashboard}?range=${range}`,
       method: "GET",
-      onSuccess: (data) => {
+      onSuccess: (response) => {
+        setDashboard(response?.data || {});
         setLoading(false);
-        setDashboard(data.data);
       },
       onError: (error) => {
         setLoading(false);
-        ShowToast(error, Severty.ERROR);
+        ShowToast(error?.message || "Unable to load dashboard data", Severty.ERROR);
       },
     });
-  }, [year, country.country_id, userProfile]);
+  }, [request, range, userProfile, canViewDashboard]);
+
+  const stats = dashboard?.stats || {};
+  const charts = dashboard?.charts || {};
+  const postGrowth = charts?.postGrowth || [];
+  const userGrowth = charts?.userGrowth || [];
+  const categoryDistribution = charts?.categoryDistribution || [];
+  const trendingKeywords = dashboard?.trendingKeywords || [];
+  const trendingPosts = dashboard?.trendingPosts || [];
+  const keywordInsights = dashboard?.keywordInsights || {};
+  const recentPosts = dashboard?.recentActivity?.posts || [];
+  const recentUsers = dashboard?.recentActivity?.users || [];
+
+  const lineLabels = postGrowth.map((item) => item.label);
+  const lineData = {
+    labels: lineLabels,
+    datasets: [
+      {
+        label: "Posts",
+        data: postGrowth.map((item) => item.count || 0),
+        borderColor: "#d8a54d",
+        backgroundColor: "rgba(216, 165, 77, 0.18)",
+        tension: 0.35,
+        fill: true,
+        pointRadius: 3,
+        pointBackgroundColor: "#d8a54d",
+      },
+      {
+        label: "Users",
+        data: userGrowth.map((item) => item.count || 0),
+        borderColor: "#0f2f67",
+        backgroundColor: "rgba(15, 47, 103, 0.12)",
+        tension: 0.35,
+        fill: false,
+        pointRadius: 3,
+        pointBackgroundColor: "#0f2f67",
+      },
+    ],
+  };
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          usePointStyle: true,
+          boxWidth: 10,
+          padding: 18,
+        },
+      },
+      tooltip: {
+        backgroundColor: "#0f2f67",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        padding: 12,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#7b8496",
+        },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+          color: "#7b8496",
+        },
+        grid: {
+          color: "rgba(15, 47, 103, 0.08)",
+        },
+      },
+    },
+  };
+
+  const doughnutData = {
+    labels: categoryDistribution.map((item) => item.label),
+    datasets: [
+      {
+        data: categoryDistribution.map((item) => item.value || 0),
+        backgroundColor: categoryDistribution.map((item) => item.color),
+        borderWidth: 0,
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "68%",
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          usePointStyle: true,
+          padding: 16,
+        },
+      },
+      tooltip: {
+        backgroundColor: "#0f2f67",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        padding: 12,
+      },
+    },
+  };
+
+  const renderEmptyState = () => (
+    <div className="dashboard-empty">
+      <Empty description="No data available yet" />
+    </div>
+  );
+
+  if (!userProfile) {
+    return (
+      <div className="page-top-space layout-content dashboard-page">
+        <div className="dashboard-loading-shell">
+          <Spin size="large" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!canViewDashboard) {
+    return (
+      <Row>
+        <Col xs={24} sm={24} md={24}>
+          <Card bordered={false} className="dashboard-panel">
+            <Title level={3}>Teacher Info</Title>
+            <p className="mb-2">
+              <Text strong>Name:</Text> {userProfile?.name}
+            </p>
+            <p className="mb-2">
+              <Text strong>Role title:</Text> {userProfile?.role_title}
+            </p>
+            <p className="mb-0">
+              <Text strong>Mobile Number:</Text> {formatPhone(userProfile?.country_code, userProfile?.mobile_number)}
+            </p>
+          </Card>
+        </Col>
+      </Row>
+    );
+  }
+
+  const statCards = [
+    {
+      title: "Total Posts",
+      value: stats?.totalPosts || 0,
+      subtitle: "Shayari + Sher combined",
+      icon: <FileTextOutlined />,
+      accent: "#d8a54d",
+    },
+    {
+      title: "Total Users",
+      value: stats?.totalUsers || 0,
+      subtitle: "Registered customers",
+      icon: <TeamOutlined />,
+      accent: "#0f2f67",
+    },
+    {
+      title: "Total Categories",
+      value: stats?.totalCategories || 0,
+      subtitle: "Active content categories",
+      icon: <FolderOpenOutlined />,
+      accent: "#264c93",
+    },
+    {
+      title: "Total Keywords",
+      value: stats?.totalKeywords || 0,
+      subtitle: "Keyword emotion library",
+      icon: <TagsOutlined />,
+      accent: "#9e6f20",
+    },
+    {
+      title: "Total Subcategories",
+      value: stats?.totalSubcategories || 0,
+      subtitle: "Connected to categories",
+      icon: <AppstoreAddOutlined />,
+      accent: "#203b6d",
+    },
+    {
+      title: "Posts Added Today",
+      value: stats?.postsToday || 0,
+      subtitle: "Fresh content from today",
+      icon: <CalendarOutlined />,
+      accent: "#d08d2f",
+    },
+  ];
 
   return (
-    <>
-      {userProfile &&
-      !userProfile?.permission?.includes("dashboard-management") &&
-      userProfile.type == "Teacher" ? (
-        <Row>
-          <Col xs={24} sm={24} md={24}>
-            <Descriptions
-              column={{ xs: 16, sm: 16, md: 24 }}
-              title="Teacher Info"
-            >
-              <Descriptions.Item label="Name">
-                {userProfile?.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="Role title">
-                {userProfile?.role_title}
-              </Descriptions.Item>
-              <Descriptions.Item label="Mobile Number">
-                {formatPhone(
-                  userProfile?.country_code,
-                  userProfile?.mobile_number
-                )}
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-        </Row>
-      ) : (
-        <div className="page-top-space home-card layout-content">
-          <div className="mb-24">
-            <div className="sub_title">
-              <p>{lang("Here is the information about all your business")}</p>
-              <div className="bussiness_year">
-                <span>{lang("Year")}</span>
-                <Select
-                  value={year}
-                  style={{ width: 120 }}
-                  onChange={handleChange}
-                  options={years.map((item) => ({ value: item, label: item }))}
-                />
-              </div>
-              <div className="bussiness_year">
-                <span>{lang("Filter")}</span>
-                <Select
-                  value={filter}
-                  style={{ width: 120 }}
-                  onChange={(e) => setFilter(e)}
-                  options={[
-                    { label: "State", value: "State" },
-                    { label: "Graph", value: "Graph" },
-                  ]}
-                />
-              </div>
-            </div>
-
-            {filter === "State" ? (
-              <>
-                <Row gutter={[24, 0]}>
-                  <Col xs={24} sm={24} md={24}>
-                    <Row
-                      className="rowgap-vbox"
-                      gutter={[24, 16]}
-                      // style={{ marginLeft: "0" }}
-                    >
-                      {count.map((c, index) => (
-                        <Col
-                          key={index}
-                          xs={24}
-                          sm={24}
-                          md={12}
-                          lg={12}
-                          xl={8}
-                          className="mb24"
-                        >
-                          <CountCard c={c} key={index} loading={loading} />
-                        </Col>
-                      ))}
-                    </Row>
-                  </Col>
-                </Row>
-                <Row className="mt-3" gutter={[24, 0]}>
-                  <Col xs={24} xl={24} className="sm-padding-0 ">
-                    <SectionWrapper
-                      cardHeading={lang("Top 5 Students")}
-                      extra={
-                        <>
-                          <div className="w-100 text-head_right_cont"></div>
-                        </>
-                      }
-                    >
-                      <ServicesPerCategory
-                        data={dashboard?.servicePerCategory}
-                        loading={loading}
-                      />
-                    </SectionWrapper>
-                  </Col>
-                  <Col xs={24} xl={24} className="sm-padding-0 ">
-                    <SectionWrapper
-                      cardHeading={lang("Top 5 Teachers")}
-                      extra={
-                        <>
-                          <div className="w-100 text-head_right_cont"></div>
-                        </>
-                      }
-                    >
-                      <BannerClicks
-                        data={dashboard?.banner}
-                        loading={loading}
-                      />
-                    </SectionWrapper>
-                  </Col>
-                </Row>
-              </>
-            ) : (
-              <>
-                <Row>
-                  <Col xs={24} xl={24} lg={24}>
-                    <Tabs className="main_tabs">
-                      <TabPane tab={lang("weekly")} key="Weekly">
-                        <div style={{ padding: "25px" }}>
-                          <Row gutter={[24, 0]}>
-                            <WeeklyChartSection borderColor="#1EB564" />
-                          </Row>
-                        </div>
-                      </TabPane>
-                      <TabPane tab={lang("monthly")} key="Monthly">
-                        <div style={{ padding: "25px" }}>
-                          <Row gutter={[24, 0]}>
-                            <MonthlyChartSection borderColor="#1EB564" />
-                          </Row>
-                        </div>
-                      </TabPane>
-
-                      <TabPane tab={lang("quarterly")} key="Quarterly">
-                        <div style={{ padding: "25px" }}>
-                          <Row gutter={[24, 0]}>
-                            <QuarterlyChartSection borderColor="#1EB564" />
-                          </Row>
-                        </div>
-                      </TabPane>
-                    </Tabs>
-                  </Col>
-                </Row>
-              </>
-            )}
-          </div>
+    <div className="page-top-space layout-content dashboard-page">
+      <div className="dashboard-hero">
+        <div className="dashboard-hero-copy">
+          <div className="dashboard-hero-eyebrow">Black Diary Analytics</div>
+          <Title level={2} className="dashboard-hero-title">
+            Dashboard Overview
+          </Title>
+          <Text className="dashboard-hero-text">
+            Real-time stats, content growth, trending keywords and activity from the live backend.
+          </Text>
         </div>
-      )}
-    </>
+
+        <Space wrap className="dashboard-hero-actions">
+          <div className="dashboard-range-control">
+            <span>Range</span>
+            <Select
+              value={range}
+              onChange={setRange}
+              options={rangeOptions}
+              suffixIcon={<LineChartOutlined />}
+            />
+          </div>
+          <Button
+            icon={<ReloadOutlined />}
+            className="dashboard-refresh-btn"
+            onClick={() => {
+              setLoading(true);
+              request({
+                url: `${apiPath.dashboard}?range=${range}`,
+                method: "GET",
+                onSuccess: (response) => {
+                  setDashboard(response?.data || {});
+                  setLoading(false);
+                },
+                onError: (error) => {
+                  setLoading(false);
+                  ShowToast(error?.message || "Unable to load dashboard data", Severty.ERROR);
+                },
+              });
+            }}
+          >
+            Refresh
+          </Button>
+        </Space>
+      </div>
+
+      <Row gutter={[20, 20]} className="dashboard-stats-grid">
+        {statCards.map((item) => (
+          <Col key={item.title} xs={24} sm={12} lg={8} xl={4}>
+            <StatsCard
+              title={item.title}
+              value={item.value}
+              subtitle={item.subtitle}
+              icon={item.icon}
+              loading={loading && !dashboard}
+              accent={item.accent}
+            />
+          </Col>
+        ))}
+      </Row>
+
+      <Card bordered={false} className="dashboard-panel dashboard-actions-card" title="Quick Actions">
+        <Row gutter={[14, 14]}>
+          {quickActions.map((action) => (
+            <Col key={action.label} xs={24} sm={12} lg={6}>
+              <Button
+                block
+                size="large"
+                icon={action.icon}
+                className="dashboard-action-btn"
+                onClick={() => navigate(action.path)}
+              >
+                {action.label}
+              </Button>
+            </Col>
+          ))}
+        </Row>
+      </Card>
+
+      <Row gutter={[20, 20]}>
+        <Col xs={24} xl={16}>
+          <ChartSection
+            title="Posts Growth"
+            subtitle={`Combined posts created in the last ${range} days`}
+            loading={loading && !dashboard}
+            extra={<Tag color="gold">Live backend data</Tag>}
+            bodyStyle={{ height: 360 }}
+          >
+            {postGrowth.length ? <Line data={lineData} options={lineOptions} /> : renderEmptyState()}
+          </ChartSection>
+        </Col>
+        <Col xs={24} xl={8}>
+          <ChartSection
+            title="Category Distribution"
+            subtitle="Shayari, Sher and everything else"
+            loading={loading && !dashboard}
+            extra={<Tag color="blue">Overall</Tag>}
+            bodyStyle={{ height: 360 }}
+          >
+            {categoryDistribution.some((item) => item.value) ? <Doughnut data={doughnutData} options={doughnutOptions} /> : renderEmptyState()}
+          </ChartSection>
+        </Col>
+      </Row>
+
+      <Row gutter={[20, 20]}>
+        <Col xs={24} xl={12}>
+          <TrendingList
+            title="Trending Keywords"
+            subtitle="Top 10 keywords by usage"
+            items={trendingKeywords}
+            loading={loading && !dashboard}
+            accent="#d8a54d"
+            renderItem={(item) => (
+              <Space direction="vertical" size={4} style={{ width: "100%" }}>
+                <Text className="dashboard-list-title">{item?.name || item?.slug || "Keyword"}</Text>
+                <Text className="dashboard-list-subtitle">
+                  {item?.slug ? `@${item.slug}` : "No slug available"}
+                </Text>
+              </Space>
+            )}
+          />
+        </Col>
+        <Col xs={24} xl={12}>
+          <TrendingList
+            title="Trending Posts"
+            subtitle="Most engaged posts in the current dataset"
+            items={trendingPosts}
+            loading={loading && !dashboard}
+            accent="#0f2f67"
+            renderItem={(item) => (
+              <div className="dashboard-post-row">
+                <div className="dashboard-post-copy">
+                  <Text className="dashboard-list-title">{item?.title || "Untitled"}</Text>
+                  <Space size={[8, 4]} wrap>
+                    <Tag color="gold">{item?.categoryLabel || "Others"}</Tag>
+                    <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
+                    <Text className="dashboard-list-subtitle">{item?.author?.name || item?.author?.user_name || "Unknown author"}</Text>
+                  </Space>
+                </div>
+                <Tag color="#0f2f67" className="dashboard-count-tag">
+                  {item?.likesCount || 0} likes
+                </Tag>
+              </div>
+            )}
+          />
+        </Col>
+      </Row>
+
+      <Row gutter={[20, 20]}>
+        <Col xs={24} xl={8}>
+          <Card bordered={false} className="dashboard-panel" title="Keyword Insights">
+            <Tabs defaultActiveKey="most-used" className="dashboard-tabs">
+              <TabPane tab="Most Used" key="most-used">
+                {keywordInsights?.mostUsed?.length ? (
+                  <div className="dashboard-list">
+                    {keywordInsights.mostUsed.map((item) => (
+                      <div className="dashboard-list-item" key={item?._id}>
+                        <Space direction="vertical" size={2}>
+                          <Text className="dashboard-list-title">{item?.name || item?.slug || "Keyword"}</Text>
+                          <Text className="dashboard-list-subtitle">
+                            {item?.slug ? `@${item.slug}` : "No slug"} • {item?.categories?.join(", ") || "All categories"}
+                          </Text>
+                        </Space>
+                        <Tag color="gold" className="dashboard-count-tag">
+                          {item?.usageCount || 0} uses
+                        </Tag>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Empty description="No keyword usage yet" />
+                )}
+              </TabPane>
+              <TabPane tab="Unused" key="unused">
+                {keywordInsights?.unused?.length ? (
+                  <div className="dashboard-list">
+                    {keywordInsights.unused.map((item) => (
+                      <div className="dashboard-list-item" key={item?._id}>
+                        <Space direction="vertical" size={2}>
+                          <Text className="dashboard-list-title">{item?.name || item?.slug || "Keyword"}</Text>
+                          <Text className="dashboard-list-subtitle">
+                            {item?.slug ? `@${item.slug}` : "No slug"} • never used
+                          </Text>
+                        </Space>
+                        <Tag color="default" className="dashboard-count-tag">
+                          0 uses
+                        </Tag>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Empty description="No unused keywords found" />
+                )}
+              </TabPane>
+              <TabPane tab="Recently Used" key="recently-used">
+                {keywordInsights?.recentlyUsed?.length ? (
+                  <div className="dashboard-list">
+                    {keywordInsights.recentlyUsed.map((item) => (
+                      <div className="dashboard-list-item" key={item?._id}>
+                        <Space direction="vertical" size={2}>
+                          <Text className="dashboard-list-title">{item?.name || item?.slug || "Keyword"}</Text>
+                          <Text className="dashboard-list-subtitle">
+                            {item?.slug ? `@${item.slug}` : "No slug"} • {item?.lastUsedAt ? moment(item.lastUsedAt).fromNow() : "Unknown"}
+                          </Text>
+                        </Space>
+                        <Tag color="#0f2f67" className="dashboard-count-tag">
+                          {item?.usageCount || 0} uses
+                        </Tag>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Empty description="No recent keyword activity" />
+                )}
+              </TabPane>
+            </Tabs>
+          </Card>
+        </Col>
+
+        <Col xs={24} xl={16}>
+          <Row gutter={[20, 20]}>
+            <Col xs={24} lg={12}>
+              <ActivityFeed
+                title="Recent Posts Added"
+                subtitle="Last 5 posts created"
+                items={recentPosts}
+                loading={loading && !dashboard}
+                emptyText="No recent posts"
+                renderItem={(item) => (
+                  <div className="dashboard-activity-row">
+                    <div>
+                      <Text className="dashboard-list-title">{item?.title || "Untitled"}</Text>
+                      <div className="dashboard-activity-meta">
+                        <Tag color="gold">{item?.categoryLabel || "Others"}</Tag>
+                        <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
+                      </div>
+                    </div>
+                    <div className="dashboard-activity-meta">
+                      <Text className="dashboard-list-subtitle">
+                        {item?.author?.name || item?.author?.user_name || "Unknown author"}
+                      </Text>
+                      <Tag color="#0f2f67">{item?.likesCount || 0} likes</Tag>
+                    </div>
+                  </div>
+                )}
+              />
+            </Col>
+            <Col xs={24} lg={12}>
+              <ActivityFeed
+                title="Recent Users Registered"
+                subtitle="Last 5 users who joined"
+                items={recentUsers}
+                loading={loading && !dashboard}
+                emptyText="No recent users"
+                renderItem={(item) => (
+                  <div className="dashboard-activity-row">
+                    <div>
+                      <Text className="dashboard-list-title">{item?.displayName || item?.name || "User"}</Text>
+                      <div className="dashboard-activity-meta">
+                        <Tag color="gold">{item?.user_name ? `@${item.user_name}` : "No username"}</Tag>
+                        <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
+                      </div>
+                    </div>
+                    <div className="dashboard-activity-meta">
+                      <Text className="dashboard-list-subtitle">{item?.email || item?.mobile_number || "-"}</Text>
+                    </div>
+                  </div>
+                )}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+
+    </div>
   );
 }
-
-const CountCard = ({ c, loading }) => {
-  const [percentage, setPercentage] = useState();
-  const [difference, setDifference] = useState();
-  const { userProfile } = useAuthContext();
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!c) return null;
-
-    console.log(c);
-    const diff = c._7Day - c._14Day;
-
-    const percentage = parseInt(
-      ((diff / (c._7Day + c._14Day)) * 100).toFixed(2)
-    );
-
-    setPercentage(!!percentage ? percentage : 0);
-  }, [c]);
-
-  //if (!c) return null
-  return (
-    <Card
-      hoverable
-      bordered={false}
-      className="criclebox"
-      style={{ height: "100%" }}
-      loading={loading}
-      onClick={() => {
-        userProfile?.type != "SubAdmin" && c.url && navigate(c.url);
-      }}
-    >
-      <div className="number">
-        <Row align="middle" gutter={[24, 0]}>
-          <Col xs={18}>
-            <span>{lang(c?.today)}</span>
-            {/* <p className="ftp_text">{lang("Last 7 days")}</p> */}
-            <Title level={3}>{lang(c?.title)}</Title>
-          </Col>
-          {/* <Col xs={6}>
-            <div className="icon_box">
-              <LineChartWithoutAxis
-                isUp={percentage >= 0}
-                points={[c?._14Day, c?._7Day]}
-              />
-            </div>
-          </Col> */}
-        </Row>
-      </div>
-    </Card>
-  );
-};
 
 export default Home;

@@ -7,6 +7,8 @@ import PhoneInput from "react-phone-input-2";
 import moment from "moment";
 import SingleImageUpload from "../../components/SingleImageUpload";
 import notfound from "../../assets/images/not_found.png";
+import { isValidUserName, normalizeUserName } from "../../helper/userNameHelper";
+import apiPath from "../../constants/apiPath";
 
 const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
 
@@ -82,6 +84,7 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
     setLoading(true);
     const payload = new FormData();
     payload.append("name", values.name || "");
+    payload.append("user_name", values.user_name || "");
     payload.append("email", values.email || "");
     payload.append("dob", values.dob ? moment(values.dob).format("DD-MM-YYYY") : "");
     payload.append("gender", values.gender || "");
@@ -118,6 +121,35 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
         setLoading(false);
       },
     });
+  };
+
+  const validateUserName = async (_, value) => {
+    const normalizedUserName = normalizeUserName(value);
+
+    if (!normalizedUserName) {
+      return Promise.reject(new Error(lang("User name is required")));
+    }
+
+    if (!isValidUserName(normalizedUserName)) {
+      return Promise.reject(new Error(lang("User name must be 3-30 characters and can contain only lowercase letters, numbers, dot and underscore.")));
+    }
+
+    const response = await request({
+      url: `${apiPath.checkCustomerUserName}?user_name=${encodeURIComponent(normalizedUserName)}${data?._id ? `&id=${data._id}` : ""}`,
+      method: "GET",
+      onSuccess: () => {},
+      onError: () => {},
+    });
+
+    if (!response) {
+      return Promise.reject(new Error(lang("Unable to validate user name right now. Please try again.")));
+    }
+
+    if (!response?.status) {
+      return Promise.reject(new Error(response?.message || lang("User name already taken")));
+    }
+
+    return Promise.resolve();
   };
 
   const handleImage = (file) => {
@@ -165,7 +197,7 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
       >
         <h4 className="modal_title_cls">{data ? lang(`Edit User`) : lang(`Add New User`)}</h4>
         <Row gutter={[16, 0]}>
-          <Col span={24} sm={12}>
+          <Col span={24} sm={24}>
             <Form.Item
               label={lang(`Name`)}
               name="name"
@@ -186,6 +218,40 @@ const AddForm = ({ api, show, hide, data, refresh }) => {
               normalize={(value) => value.trimStart()}
             >
               <Input autoComplete="off" placeholder={lang(`Enter  Name`)} />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={24}>
+            <Form.Item
+              className="customer-user-name-field"
+              label={lang(`User Name`)}
+              name="user_name"
+              normalize={(value) => normalizeUserName(value)}
+              validateTrigger="onBlur"
+              rules={[
+                {
+                  required: true,
+                  message: lang("User name is required"),
+                },
+                {
+                  min: 3,
+                  message: lang("User name should contain at least 3 characters!"),
+                },
+                {
+                  max: 30,
+                  message: lang("User name should not contain more then 30 characters!"),
+                },
+                {
+                  validator: validateUserName,
+                },
+              ]}
+              extra={lang("Only lowercase letters, numbers, dot and underscore are allowed.")}
+            >
+              <Input
+                className="customer-user-name-input"
+                autoComplete="off"
+                prefix={<span className="customer-user-name-prefix">@</span>}
+                placeholder={lang(`Enter User Name`)}
+              />
             </Form.Item>
           </Col>
           <Col span={12} lg={12} sm={12}>

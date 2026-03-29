@@ -1,6 +1,7 @@
 "use client";
-import { Button, Modal, Select, Table, Tooltip, Col, Row, Tabs, Image, Card, Input, Badge } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import { Button, Card, Col, Image, Input, Row, Select, Switch, Table, Tooltip } from "antd";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import DeleteModal from "../../components/DeleteModal";
 import SectionWrapper from "../../components/SectionWrapper";
 import apiPath from "../../constants/apiPath";
 import { AppStateContext, useAppContext } from "../../context/AppContext";
@@ -21,6 +22,9 @@ function Index() {
   const api = {
     addEdit: apiPath.listDiary,
     list: apiPath.listDiary,
+    status: apiPath.statusDiary,
+    categories: apiPath.common.categories,
+    subCategories: apiPath.common.subCategories,
   };
 
   const [searchText, setSearchText] = useState("");
@@ -28,12 +32,48 @@ function Index() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState();
-  const [showDelete, setShowDelete] = useState(false);
-  const [showStatus, setShowStatus] = useState(false);
+  const [deleteModal, showDeleteModal] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState();
+  const [subCategoryFilter, setSubCategoryFilter] = useState();
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const debouncedSearchText = useDebounce(searchText, 300);
+
+  const filteredSubCategoryOptions = useMemo(() => {
+    if (!categoryFilter) {
+      return subCategoryOptions;
+    }
+
+    return subCategoryOptions.filter((item) => Array.isArray(item.category) && item.category.includes(categoryFilter));
+  }, [categoryFilter, subCategoryOptions]);
+
+  const fetchCategories = () => {
+    request({
+      url: api.categories,
+      method: "GET",
+      onSuccess: ({ data }) => {
+        setCategoryOptions(Array.isArray(data) ? data : []);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to load categories", Severty.ERROR);
+      },
+    });
+  };
+
+  const fetchSubCategories = () => {
+    request({
+      url: api.subCategories,
+      method: "GET",
+      onSuccess: ({ data }) => {
+        setSubCategoryOptions(Array.isArray(data) ? data : []);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to load sub categories", Severty.ERROR);
+      },
+    });
+  };
 
   const columns = [
     {
@@ -42,21 +82,25 @@ function Index() {
       key: "index",
       render: (value, item, index) => (pagination.current === 1 ? index + 1 : (pagination.current - 1) * 10 + (index + 1)),
     },
+
     {
-      title: lang("Image"),
-      dataIndex: "image",
-      key: "image",
-      render: (_, { image }) => <Image width={50} src={image ? apiPath.assetURL + image : "/images/png/not_found.png"} className="table-img" />,
-    },
-    {
-      title: lang("Title"),
-      dataIndex: "title",
-      key: "title",
-      sorter: (a, b) => a?.title?.localeCompare(b?.title),
+      title: lang("Content"),
+      dataIndex: "content",
+      key: "content",
       sortDirections: ["ascend", "descend"],
-      width: 200,
-      render: (_, { title }) => {
-        return title ? title : "-";
+      width: 320,
+      render: (_, { content }) => {
+        const plainText = String(content || "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        if (!plainText) {
+          return "-";
+        }
+
+        const preview = plainText.length > 90 ? `${plainText.slice(0, 90)}...` : plainText;
+        return <span title={plainText}>{preview}</span>;
       },
     },
 
@@ -72,28 +116,9 @@ function Index() {
     },
     {
       title: lang("Status"),
-      fixed: "right",
-      key: "action",
-      render: (_, record) => {
-        return (
-          <div div className="d-flex justify-contenbt-start">
-            <>
-              <Tooltip title={lang("Status")} color={"purple"} key={"Status"}>
-                <Button
-                  title="Block"
-                  className="block-cls cap"
-                  onClick={() => {
-                    setSelected(record);
-                    setShowStatus(true);
-                  }}
-                >
-                  <Badge status={record.is_active ? "success" : "error"} text={record?.is_active ? "Active" : "In-Active"} />
-                </Button>
-              </Tooltip>
-            </>
-          </div>
-        );
-      },
+      key: "is_active",
+      dataIndex: "is_active",
+      render: (_, record) => <Switch checked={record?.is_active} onChange={() => handleChangeStatus(record)} />,
     },
 
     {
@@ -116,7 +141,7 @@ function Index() {
                   className="btnStyle deleteDangerbtn"
                   onClick={() => {
                     setSelected(record);
-                    setShowDelete(true);
+                    showDeleteModal(true);
                   }}
                 >
                   <img src={deleteWhiteIcon} />
@@ -131,18 +156,20 @@ function Index() {
 
   useEffect(() => {
     setLoading(true);
-    fetchData({ ...pagination, current: 1 });
-  }, [refresh, debouncedSearchText]);
+    fetchData({ current: 1, pageSize: pagination.pageSize });
+  }, [refresh, debouncedSearchText, categoryFilter, subCategoryFilter]);
 
   useEffect(() => {
     setPageHeading(heading);
+    fetchCategories();
+    fetchSubCategories();
   }, [setPageHeading]);
 
   const fetchData = (pagination, filters, sorter) => {
-    const filterActive = filters ? filters.is_active : null;
-
     request({
-      url: api.list + `?page=${pagination ? pagination.current : 1}&pageSize=${pagination ? pagination.pageSize : 10}&search=${debouncedSearchText}`,
+      url:
+        api.list +
+        `?type=shayari&page=${pagination ? pagination.current : 1}&pageSize=${pagination ? pagination.pageSize : 10}&search=${debouncedSearchText}&category=${categoryFilter || ""}&sub_category_id=${subCategoryFilter || ""}`,
       method: "GET",
       onSuccess: ({ data, status, total, message }) => {
         setLoading(false);
@@ -173,8 +200,41 @@ function Index() {
     fetchData(pagination, filters, query);
   };
 
+  const handleChangeStatus = (record) => {
+    request({
+      url: `${apiPath.statusDiary}/${record?._id}?type=shayari`,
+      method: "GET",
+      onSuccess: (response) => {
+        ShowToast(response.message, Severty.SUCCESS);
+        setRefresh((prev) => !prev);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to update status", Severty.ERROR);
+      },
+    });
+  };
+
+  const onDelete = (id) => {
+    request({
+      url: `${apiPath.listDiary}/${id}?type=shayari`,
+      method: "DELETE",
+      onSuccess: (response) => {
+        ShowToast(response.message, Severty.SUCCESS);
+        setRefresh((prev) => !prev);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to delete record", Severty.ERROR);
+      },
+    });
+  };
+
   const onSearch = (e) => {
     setSearchText(e.target.value);
+  };
+
+  const handleCategoryFilterChange = (value) => {
+    setCategoryFilter(value);
+    setSubCategoryFilter(undefined);
   };
 
   return (
@@ -187,10 +247,46 @@ function Index() {
                 cardHeading={sectionName + " " + lang("List")}
                 extra={
                   <>
-                    <div className="w-100 d-flex align-items-baseline text-head_right_cont">
+                    <div className="w-100 d-flex align-items-baseline flex-wrap gap-2 text-head_right_cont">
                       <div className="pageHeadingSearch">
-                        <Input.Search className="searchInput" value={searchText} placeholder={lang("Search by title")} onChange={onSearch} allowClear />
+                        <Input.Search className="searchInput" value={searchText} placeholder={lang("Search by content")} onChange={onSearch} allowClear />
                       </div>
+
+                      <Select
+                        allowClear
+                        showSearch
+                        value={categoryFilter}
+                        placeholder={lang("Filter Category")}
+                        onChange={handleCategoryFilterChange}
+                        className="searchInput"
+                        style={{ minWidth: 180 }}
+                        optionFilterProp="label"
+                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                      >
+                        {categoryOptions.map((item) => (
+                          <Select.Option key={item.value} value={item.value} label={item.name || item.value}>
+                            {item.name || item.value}
+                          </Select.Option>
+                        ))}
+                      </Select>
+
+                      <Select
+                        allowClear
+                        showSearch
+                        value={subCategoryFilter}
+                        placeholder={lang("Filter Sub Category")}
+                        onChange={(value) => setSubCategoryFilter(value)}
+                        className="searchInput"
+                        style={{ minWidth: 200 }}
+                        optionFilterProp="label"
+                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                      >
+                        {filteredSubCategoryOptions.map((item) => (
+                          <Select.Option key={item._id} value={item._id} label={item.name}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                      </Select>
 
                       <Button className="ms-sm-2 mt-xs-2 primary_btn btnStyle" onClick={() => navigate("/diary-add-edit?type=shayari")}>
                         {lang("Add")} {sectionName}
@@ -222,6 +318,19 @@ function Index() {
           </Col>
         </Row>
       </div>
+      {deleteModal && (
+        <DeleteModal
+          reasons={[]}
+          title={lang("Delete Shayari")}
+          subtitle={lang("This action will permanently remove the record. Are you sure?")}
+          show={deleteModal}
+          hide={() => {
+            showDeleteModal(false);
+            setSelected(undefined);
+          }}
+          onOk={() => onDelete(selected?._id)}
+        />
+      )}
     </>
   );
 }

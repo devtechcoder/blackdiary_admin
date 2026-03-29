@@ -8,6 +8,7 @@ export const rolesOptions = [
   { name: "service-manager", label: "Service Management" },
   { name: "category-management", label: "Category Management" },
   { name: "sub-category-management", label: "Sub Category Management" },
+  { name: "keyword-emotion-management", label: "Keyword / Emotions Management" },
   { name: "faq-management", label: "FAQ Management" },
   { name: "quotation-request", label: "Quotation Request Management" },
   { name: "cms-manager", label: "CMS Management" },

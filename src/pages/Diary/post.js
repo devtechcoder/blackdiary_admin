@@ -1,228 +1,330 @@
 "use client";
-import { Button, Modal, Select, Table, Tooltip, Col, Row, Tabs, Image, Card, Input, Badge } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import { Button, Card, Col, Image, Input, Row, Select, Switch, Table, Tooltip } from "antd";
+import dayjs from "dayjs";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import DeleteModal from "../../components/DeleteModal";
 import SectionWrapper from "../../components/SectionWrapper";
 import apiPath from "../../constants/apiPath";
-import { AppStateContext, useAppContext } from "../../context/AppContext";
+import { AppStateContext } from "../../context/AppContext";
+import EditIcon from "../../assets/images/edit.svg";
+import deleteWhiteIcon from "../../assets/images/icon/deleteWhiteIcon.png";
 import lang from "../../helper/langHelper";
 import { Severty, ShowToast } from "../../helper/toast";
 import useDebounce from "../../hooks/useDebounce";
 import useRequest from "../../hooks/useRequest";
-import dayjs from "dayjs";
 import { useNavigate } from "react-router";
-import EditIcon from "../../assets/images/edit.svg";
-import deleteWhiteIcon from "../../assets/images/icon/deleteWhiteIcon.png";
+import notfound from "../../assets/images/not_found.png";
 
 function Index() {
   const heading = lang("Feed") + " " + lang("Management");
   const { setPageHeading } = useContext(AppStateContext);
   const sectionName = lang("Post");
   const navigate = useNavigate();
+  const { request } = useRequest();
+
   const api = {
     addEdit: apiPath.listDiary,
     list: apiPath.listDiary,
+    status: apiPath.statusDiary,
+    categories: apiPath.common.categories,
+    subCategories: apiPath.common.subCategories,
   };
 
   const [searchText, setSearchText] = useState("");
-  const { request } = useRequest();
+  const [categoryFilter, setCategoryFilter] = useState();
+  const [subCategoryFilter, setSubCategoryFilter] = useState();
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState();
-  const [showDelete, setShowDelete] = useState(false);
-  const [showStatus, setShowStatus] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [deleteModal, showDeleteModal] = useState(false);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const debouncedSearchText = useDebounce(searchText, 300);
 
-  const columns = [
-    {
-      title: lang("S. No"),
-      dataIndex: "index",
-      key: "index",
-      render: (value, item, index) => (pagination.current === 1 ? index + 1 : (pagination.current - 1) * 10 + (index + 1)),
-    },
-    {
-      title: lang("Image"),
-      dataIndex: "image",
-      key: "image",
-      render: (_, { image }) => <Image width={50} src={image ? apiPath.assetURL + image : "/images/png/not_found.png"} className="table-img" />,
-    },
-    {
-      title: lang("Title"),
-      dataIndex: "title",
-      key: "title",
-      sorter: (a, b) => a?.title?.localeCompare(b?.title),
-      sortDirections: ["ascend", "descend"],
-      width: 200,
-      render: (_, { title }) => {
-        return title ? title : "-";
-      },
-    },
+  const filteredSubCategoryOptions = useMemo(() => {
+    if (!categoryFilter) {
+      return subCategoryOptions;
+    }
 
-    {
-      title: lang("Created On"),
-      key: "created_at",
-      dataIndex: "created_at",
-      sorter: (a, b) => a?.created_at?.localeCompare(b?.created_at),
-      sortDirections: ["ascend", "descend"],
-      render: (_, { created_at }) => {
-        return dayjs(created_at).format("MMM D, YYYY");
-      },
-    },
-    {
-      title: lang("Status"),
-      fixed: "right",
-      key: "action",
-      render: (_, record) => {
-        return (
-          <div div className="d-flex justify-contenbt-start">
-            <>
-              <Tooltip title={lang("Status")} color={"purple"} key={"Status"}>
-                <Button
-                  title="Block"
-                  className="block-cls cap"
-                  onClick={() => {
-                    setSelected(record);
-                    setShowStatus(true);
-                  }}
-                >
-                  <Badge status={record.is_active ? "success" : "error"} text={record?.is_active ? "Active" : "In-Active"} />
-                </Button>
-              </Tooltip>
-            </>
-          </div>
-        );
-      },
-    },
+    return subCategoryOptions.filter((item) => Array.isArray(item.category) && item.category.includes(categoryFilter));
+  }, [categoryFilter, subCategoryOptions]);
 
-    {
-      title: lang("Action"),
-      fixed: "right",
-      key: "action",
-      render: (_, record) => {
-        return (
-          <div div className="d-flex justify-contenbt-start">
-            <>
-              <Tooltip title={lang("Edit")} color={"purple"} key={"edit"}>
-                <Button className="edit-cls btnStyle primary_btn" onClick={() => navigate(`/diary-add-edit/${record?._id}?type=post`)}>
-                  <img src={EditIcon} />
-                </Button>
-              </Tooltip>
-
-              <Tooltip title={lang("Delete")} color={"purple"} key={"Delete"}>
-                <Button
-                  title="Delete"
-                  className="btnStyle deleteDangerbtn"
-                  onClick={() => {
-                    setSelected(record);
-                    setShowDelete(true);
-                  }}
-                >
-                  <img src={deleteWhiteIcon} />
-                </Button>
-              </Tooltip>
-            </>
-          </div>
-        );
-      },
-    },
-  ];
-
-  useEffect(() => {
-    setLoading(true);
-    fetchData({ ...pagination, current: 1 });
-  }, [refresh, debouncedSearchText]);
-
-  useEffect(() => {
-    setPageHeading(heading);
-  }, [setPageHeading]);
-
-  const fetchData = (pagination, filters, sorter) => {
-    const filterActive = filters ? filters.is_active : null;
-
+  const fetchCategories = () => {
     request({
-      url: api.list + `?page=${pagination ? pagination.current : 1}&pageSize=${pagination ? pagination.pageSize : 10}&search=${debouncedSearchText}`,
+      url: api.categories,
       method: "GET",
-      onSuccess: ({ data, status, total, message }) => {
-        setLoading(false);
-        if (status) {
-          setList(data?.docs ?? []);
-          setPagination((prev) => ({
-            ...prev,
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: total,
-          }));
-        }
+      onSuccess: ({ data }) => {
+        setCategoryOptions(Array.isArray(data) ? data : []);
       },
       onError: (error) => {
-        setLoading(false);
-        ShowToast(error, Severty.ERROR);
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to load categories", Severty.ERROR);
       },
     });
   };
 
-  const handleChange = (pagination, filters, sorter) => {
-    const { field, order } = sorter;
-    let query = undefined;
-    if (field && order) {
-      query = `${field}=${order}`;
-      console.log(query);
-    }
-    fetchData(pagination, filters, query);
+  const fetchSubCategories = () => {
+    request({
+      url: api.subCategories,
+      method: "GET",
+      onSuccess: ({ data }) => {
+        setSubCategoryOptions(Array.isArray(data) ? data : []);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to load sub categories", Severty.ERROR);
+      },
+    });
   };
 
-  const onSearch = (e) => {
-    setSearchText(e.target.value);
+  const fetchData = (pageConfig = { current: 1, pageSize: 10 }) => {
+    setLoading(true);
+
+    request({
+      url: `${api.list}?type=post&page=${pageConfig?.current || 1}&pageSize=${pageConfig?.pageSize || 10}&search=${debouncedSearchText}&category=${categoryFilter || ""}&sub_category_id=${subCategoryFilter || ""}`,
+      method: "GET",
+      onSuccess: ({ data }) => {
+        setLoading(false);
+        setList(
+          (data?.docs || []).map((item) => ({
+            ...item,
+            key: item._id,
+          })),
+        );
+        setPagination((prev) => ({
+          ...prev,
+          current: pageConfig?.current || 1,
+          pageSize: pageConfig?.pageSize || 10,
+          total: data?.totalDocs || 0,
+        }));
+      },
+      onError: (error) => {
+        setLoading(false);
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to load feed records", Severty.ERROR);
+      },
+    });
+  };
+
+  const handleChangeStatus = (record) => {
+    request({
+      url: `${api.status}/${record?._id}?type=post`,
+      method: "GET",
+      onSuccess: (response) => {
+        ShowToast(response.message, Severty.SUCCESS);
+        setRefresh((prev) => !prev);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to update status", Severty.ERROR);
+      },
+    });
+  };
+
+  const onDelete = (id) => {
+    request({
+      url: `${api.list}/${id}?type=post`,
+      method: "DELETE",
+      onSuccess: (response) => {
+        ShowToast(response.message, Severty.SUCCESS);
+        setRefresh((prev) => !prev);
+      },
+      onError: (error) => {
+        ShowToast(error?.response?.data?.message || error?.message || "Failed to delete feed item", Severty.ERROR);
+      },
+    });
+  };
+
+  const columns = [
+    {
+      title: lang("S. No"),
+      key: "index",
+      render: (_, __, index) => (pagination.current === 1 ? index + 1 : (pagination.current - 1) * pagination.pageSize + (index + 1)),
+      width: 90,
+    },
+    {
+      title: lang("Post"),
+      dataIndex: "image",
+      key: "image",
+      render: (_, { image }) => <Image width={50} src={image ? image : notfound} className="table-img" />,
+    },
+    {
+      title: lang("Category"),
+      dataIndex: "category",
+      key: "category",
+      width: 150,
+      render: (_, { category }) => <span className="cap">{category || "-"}</span>,
+    },
+    {
+      title: lang("Sub Categories"),
+      key: "sub_category_id",
+      width: 220,
+      render: (_, { sub_category_id }) => {
+        const labels = Array.isArray(sub_category_id) ? sub_category_id.map((item) => item?.name || item).filter(Boolean) : [];
+        return <span className="cap">{labels.length ? labels.join(", ") : "-"}</span>;
+      },
+    },
+    {
+      title: lang("Keywords"),
+      key: "keywords",
+      width: 240,
+      render: (_, { keywords }) => {
+        const labels = Array.isArray(keywords) ? keywords.map((item) => item?.name || item?.slug || item).filter(Boolean) : [];
+        return <span className="cap">{labels.length ? labels.join(", ") : "-"}</span>;
+      },
+    },
+    {
+      title: lang("Status"),
+      key: "is_active",
+      dataIndex: "is_active",
+      width: 120,
+      render: (_, record) => <Switch checked={record?.is_active} onChange={() => handleChangeStatus(record)} />,
+    },
+    {
+      title: lang("Action"),
+      key: "action",
+      fixed: "right",
+      width: 160,
+      render: (_, record) => (
+        <div className="d-flex justify-contenbt-start">
+          <Tooltip title={lang("Edit")} color={"purple"} key={`edit-${record?._id}`}>
+            <Button className="edit-cls btnStyle primary_btn" onClick={() => navigate(`/diary-add-edit/${record?._id}?type=post`)}>
+              <img src={EditIcon} alt="" />
+            </Button>
+          </Tooltip>
+
+          <Tooltip title={lang("Delete")} color={"purple"} key={`delete-${record?._id}`}>
+            <Button
+              title={lang("Delete")}
+              className="btnStyle deleteDangerbtn"
+              onClick={() => {
+                setSelected(record);
+                showDeleteModal(true);
+              }}
+            >
+              <img src={deleteWhiteIcon} alt="" />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    setPageHeading(heading);
+    fetchCategories();
+    fetchSubCategories();
+  }, [heading, setPageHeading]);
+
+  useEffect(() => {
+    fetchData({ current: 1, pageSize: pagination.pageSize });
+  }, [refresh, debouncedSearchText, categoryFilter, subCategoryFilter]);
+
+  const handleCategoryFilterChange = (value) => {
+    setCategoryFilter(value);
+    setSubCategoryFilter(undefined);
   };
 
   return (
-    <>
-      <div className="tabled quoteManagement">
-        <Row gutter={[24, 0]}>
-          <Col xs={24} xl={24}>
-            <Card bordered={false} className="criclebox tablespace mb-24">
-              <SectionWrapper
-                cardHeading={sectionName + " " + lang("List")}
-                extra={
-                  <>
-                    <div className="w-100 d-flex align-items-baseline text-head_right_cont">
-                      <div className="pageHeadingSearch">
-                        <Input.Search className="searchInput" value={searchText} placeholder={lang("Search by title")} onChange={onSearch} allowClear />
-                      </div>
+    <div className="tabled quoteManagement">
+      <Row gutter={[24, 0]}>
+        <Col xs={24} xl={24}>
+          <Card bordered={false} className="criclebox tablespace mb-24">
+            <SectionWrapper
+              cardHeading={sectionName + " " + lang("List")}
+              extra={
+                <div className="w-100 d-flex align-items-center flex-wrap gap-2 text-head_right_cont">
+                  <div className="pageHeadingSearch">
+                    <Input.Search className="searchInput" value={searchText} placeholder={lang("Search records")} onChange={(e) => setSearchText(e.target.value)} allowClear />
+                  </div>
 
-                      <Button className="ms-sm-2 mt-xs-2 primary_btn btnStyle" onClick={() => navigate("/diary-add-edit?type=post")}>
-                        {lang("Add")} {sectionName}
-                      </Button>
-                    </div>
-                  </>
-                }
-              >
-                <div className="table-responsive customPagination">
-                  <Table
-                    loading={loading}
-                    columns={columns}
-                    dataSource={list}
-                    pagination={{
-                      current: pagination?.current,
-                      defaultPageSize: 10,
-                      responsive: true,
-                      total: pagination.total,
-                      showSizeChanger: true,
-                      showQuickJumper: true,
-                      pageSizeOptions: ["10", "20", "30", "50", "100"],
+                  <Select
+                    allowClear
+                    showSearch
+                    value={categoryFilter}
+                    placeholder={lang("Filter Category")}
+                    onChange={handleCategoryFilterChange}
+                    className="searchInput"
+                    style={{ minWidth: 180 }}
+                    optionFilterProp="label"
+                    getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                  >
+                    {categoryOptions.map((item) => (
+                      <Select.Option key={item.value} value={item.value} label={item.name || item.value}>
+                        {item.name || item.value}
+                      </Select.Option>
+                    ))}
+                  </Select>
+
+                  <Select
+                    allowClear
+                    showSearch
+                    value={subCategoryFilter}
+                    placeholder={lang("Filter Sub Category")}
+                    onChange={(value) => setSubCategoryFilter(value)}
+                    className="searchInput"
+                    style={{ minWidth: 200 }}
+                    optionFilterProp="label"
+                    getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                  >
+                    {filteredSubCategoryOptions.map((item) => (
+                      <Select.Option key={item._id} value={item._id} label={item.name}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+
+                  <Button
+                    className="primary_btn btnStyle"
+                    onClick={() => {
+                      navigate("/diary-add-edit?type=post");
                     }}
-                    onChange={handleChange}
-                    className="ant-border-space"
-                  />
+                  >
+                    {lang("Add")} {sectionName}
+                  </Button>
                 </div>
-              </SectionWrapper>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    </>
+              }
+            >
+              <h4 className="text-right mb-1cont-space cont-space">
+                {lang("Total")} {pagination.total || 0} {lang("Record(s)")}
+              </h4>
+              <div className="table-responsive customPagination">
+                <Table
+                  loading={loading}
+                  columns={columns}
+                  dataSource={list}
+                  scroll={{ x: 1100 }}
+                  pagination={{
+                    current: pagination?.current,
+                    defaultPageSize: 10,
+                    responsive: true,
+                    total: pagination.total,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSize: pagination.pageSize,
+                    pageSizeOptions: ["10", "20", "30", "50", "100"],
+                  }}
+                  onChange={(nextPagination) => fetchData(nextPagination)}
+                  className="ant-border-space"
+                />
+              </div>
+            </SectionWrapper>
+          </Card>
+        </Col>
+      </Row>
+
+      {deleteModal && (
+        <DeleteModal
+          reasons={[]}
+          title={lang("Delete Feed")}
+          subtitle={lang("This action will permanently remove the record. Are you sure?")}
+          show={deleteModal}
+          hide={() => {
+            showDeleteModal(false);
+            setSelected(undefined);
+          }}
+          onOk={() => onDelete(selected?._id)}
+        />
+      )}
+    </div>
   );
 }
 

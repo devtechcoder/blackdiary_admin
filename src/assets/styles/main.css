@@ -883,7 +883,9 @@ ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.left-nav
 }
 
 .shadow-lg {
-  box-shadow: 0 8px 26px -4px hsla(0, 0%, 8%, 0.15), 0 8px 9px -5px hsla(0, 0%, 8%, 0.06) !important;
+  box-shadow:
+    0 8px 26px -4px hsla(0, 0%, 8%, 0.15),
+    0 8px 9px -5px hsla(0, 0%, 8%, 0.06) !important;
 }
 .ant-menu-inline,
 .ant-menu-vertical,
@@ -1423,7 +1425,9 @@ span.ismobile {
 .sidebarnav-color button {
   width: 100%;
   margin-right: 10px;
-  box-shadow: 0 3px 5px -1px rgb(0 0 0 / 9%), 0 2px 3px -1px rgb(0 0 0 / 7%);
+  box-shadow:
+    0 3px 5px -1px rgb(0 0 0 / 9%),
+    0 2px 3px -1px rgb(0 0 0 / 7%);
   height: 40px;
 }
 
@@ -2296,7 +2300,11 @@ section.ant-layout.layout-content .ant-layout-content.content-ant {
   margin-bottom: 0;
 }
 .widget-2 .ant-statistic-content {
-  font-family: open sans, Helvetica, Arial, sans-serif;
+  font-family:
+    open sans,
+    Helvetica,
+    Arial,
+    sans-serif;
   font-weight: 600;
   font-size: 20px;
   padding: 12px 16px;
@@ -3272,20 +3280,25 @@ footer.ant-layout-footer {
   justify-content: center;
 }
 .ant-btn-default {
-  display: inline-flex !important;
-  height: unset !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px !important;
-  /* background: var(--theme1) !important; */
-  color: #fff !important;
-  border-color: var(--theme1) !important;
+
+  padding: 8px 16px;
+  border-radius: 6px;
+
+  background: #fff !important;
+  color: #333 !important;
+  border: 1px solid #d9d9d9 !important;
+
+  transition: all 0.3s ease;
 }
-/* .ant-btn-default:hover {
-  background:#2C8DAF !important;
-  border-color:#2C8DAF !important;
-  color: #fff !important;
-} */
+
+.ant-btn-default:hover {
+  background: #f5f5f5 !important;
+  color: #000 !important;
+  border-color: #999 !important;
+}
 .ant-input-wrapper .ant-input-group-addon {
   left: 0 !important;
 }
@@ -5143,7 +5156,7 @@ body .ant-table-tbody > tr > td.ant-table-cell .ant-btn.ant-btn-default.block-cl
   font-weight: 700;
   line-height: 23px;
   letter-spacing: 0em;
-  text-align: left;
+
   background-color: transparent !important;
 }
 .ant-input::-ms-input-placeholder,

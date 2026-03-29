@@ -1,25 +1,45 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EditorState, convertToRaw, ContentState, convertFromHTML } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
 
 export const CaptionInput = ({ onChange, placeholder, value }) => {
-  const getInitialState = () => {
-    if (value) {
-      const blocksFromHTML = convertFromHTML(value);
-      const content = ContentState.createFromBlockArray(blocksFromHTML);
-      return EditorState.createWithContent(content);
+  const lastSyncedValueRef = useRef("");
+
+  const createEditorStateFromValue = (inputValue) => {
+    if (!inputValue || typeof inputValue !== "string") {
+      return EditorState.createEmpty();
     }
-    return EditorState.createEmpty();
+
+    const blocksFromHTML = convertFromHTML(inputValue);
+    const contentBlocks = blocksFromHTML?.contentBlocks || [];
+    const entityMap = blocksFromHTML?.entityMap || {};
+
+    if (!contentBlocks.length) {
+      return EditorState.createEmpty();
+    }
+
+    const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
+    return EditorState.createWithContent(content);
   };
-  const [editorState, setEditorState] = useState(getInitialState);
-  // Sample suggestions for @mentions
+
+  const [editorState, setEditorState] = useState(() => createEditorStateFromValue(value));
+
   const mentionSuggestions = [
     { text: "blackdiary", value: "blackdiary", url: "blackdiary" },
     { text: "user1", value: "user1", url: "user1" },
     { text: "shayariLover", value: "shayariLover", url: "shayariLover" },
   ];
+
+  useEffect(() => {
+    if (value === lastSyncedValueRef.current) {
+      return;
+    }
+
+    lastSyncedValueRef.current = value || "";
+    setEditorState(createEditorStateFromValue(value));
+  }, [value]);
 
   const handleEditorChange = (newEditorState) => {
     setEditorState(newEditorState);
@@ -33,6 +53,8 @@ export const CaptionInput = ({ onChange, placeholder, value }) => {
         },
       },
     });
+
+    lastSyncedValueRef.current = htmlContent;
 
     if (onChange) {
       onChange(htmlContent);
@@ -60,8 +82,8 @@ export const CaptionInput = ({ onChange, placeholder, value }) => {
       editorState={editorState}
       placeholder={placeholder}
       toolbarClassName="toolbarClassName"
-      wrapperClassName="wrapperClassName"
-      editorClassName="editorClassName"
+      wrapperClassName="caption-editor-wrapper"
+      editorClassName="caption-editor-editor"
       onEditorStateChange={handleEditorChange}
     />
   );

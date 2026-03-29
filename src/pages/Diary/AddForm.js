@@ -1,23 +1,18 @@
-import { Row, Col, Card, Button, Input, Form, Skeleton, Image, Select } from "antd";
+import { Row, Col, Button, Form, Select } from "antd";
 import React, { useState, useEffect } from "react";
 import useRequest from "../../hooks/useRequest";
 import { ShowToast, Severty } from "../../helper/toast";
 import apiPath from "../../constants/apiPath";
-import DescriptionEditor from "../../components/DescriptionEditor";
 import { useAppContext } from "../../context/AppContext";
 import lang from "../../helper/langHelper";
 import Loader from "../../components/Loader";
 import { useNavigate, useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import CaptionInput from "../../components/captionInput";
-import ProfileImageUpload from "../../modal/ProfileImageUpload";
+import SingleImageUpload from "../../components/SingleImageUpload";
 function AddFrom() {
   const sectionName = lang("Feed");
-  const routeName = "Diary";
-  const heading = lang("Add Feed");
-  const { setPageHeading, country } = useAppContext();
+  const { setPageHeading } = useAppContext();
   const navigate = useNavigate();
   const api = {
     addEdit: apiPath.listDiary,
@@ -26,23 +21,35 @@ function AddFrom() {
   const [form] = Form.useForm();
   const { request } = useRequest();
   const [loading, setLoading] = useState(false);
-  const [editorHiValue, setEditorHiValue] = useState("");
-  const [editorValue, setEditorValue] = useState("");
   const { id } = useParams();
   const paramId = id;
-  const [file, setFile] = useState([]);
   const [image, setImage] = useState();
   const [category, setCategory] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [keywordOptions, setKeywordOptions] = useState([]);
+  const [keywordLoading, setKeywordLoading] = useState(false);
   const [content, setContent] = useState("");
   const [searchParams] = useSearchParams();
 
   const type = searchParams.get("type");
   const FileType = ["image/png", "image/jpg", "image/jpeg", "image/avif", "image/webp", "image/gif"];
   const handleImage = (data) => {
-    data ? setImage(data) : setImage();
+    setImage(data || null);
+  };
+  const appendFormDataValue = (formData, key, value) => {
+    if (value === undefined || value === null) {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      const normalizedValue = value.filter(Boolean);
+      formData.append(key, normalizedValue.length ? normalizedValue.join(",") : "");
+      return;
+    }
+
+    formData.append(key, value);
   };
   const getCategory = () => {
     request({
@@ -52,7 +59,6 @@ function AddFrom() {
         if (status) {
           setCategory(data);
         }
-        console.log(data, "data");
       },
       onError: (err) => {
         console.log(err);
@@ -68,7 +74,6 @@ function AddFrom() {
         if (status) {
           setAuthors(data);
         }
-        console.log(data, "data");
       },
       onError: (err) => {
         console.log(err);
@@ -84,7 +89,6 @@ function AddFrom() {
         if (status) {
           setOccasions(data);
         }
-        console.log(data, "data");
       },
       onError: (err) => {
         console.log(err);
@@ -107,6 +111,32 @@ function AddFrom() {
     });
   };
 
+  const getKeywords = (categoryId, subCategoryIds = []) => {
+    if (!categoryId) {
+      setKeywordLoading(false);
+      setKeywordOptions([]);
+      return;
+    }
+
+    const normalizedSubCategoryIds = Array.isArray(subCategoryIds) ? subCategoryIds.filter(Boolean) : [];
+
+    setKeywordLoading(true);
+    request({
+      url: `${apiPath.keywordEmotion}?page=1&pageSize=100&categoryId=${categoryId}&subCategoryIds=${normalizedSubCategoryIds.join(",")}`,
+      method: "GET",
+      onSuccess: ({ data, status }) => {
+        setKeywordLoading(false);
+        if (status) {
+          setKeywordOptions(Array.isArray(data?.docs) ? data.docs : []);
+        }
+      },
+      onError: (err) => {
+        setKeywordLoading(false);
+        console.log(err);
+      },
+    });
+  };
+
   const fetchData = (id) => {
     request({
       url: `${api.addEdit}/view/${id}?type=${type}`,
@@ -114,10 +144,25 @@ function AddFrom() {
       onSuccess: ({ data, status }) => {
         setLoading(false);
         if (status) {
-          form.setFieldsValue({ ...data, sub_category_id: data?.sub_category_id?.map(({ _id }) => _id), author: data?.author?._id ?? "" });
+          const subCategoryIds = Array.isArray(data?.sub_category_id) ? data.sub_category_id.map((item) => item?._id || item).filter(Boolean) : [];
+          const keywordIds = Array.isArray(data?.keywords) ? data.keywords.map((item) => item?._id || item).filter(Boolean) : [];
+          const categoryValue = data?.category || "";
+
+          form.setFieldsValue({
+            ...data,
+            category: categoryValue,
+            sub_category_id: subCategoryIds,
+            author: data?.author?._id ?? "",
+            keywords: keywordIds,
+          });
           setContent(data?.content);
           setImage(data?.image);
-          if (data?.category) getSubCategory(data?.category);
+          if (categoryValue) {
+            setSubCategories([]);
+            setKeywordOptions([]);
+            getSubCategory(categoryValue);
+            getKeywords(categoryValue, subCategoryIds);
+          }
         }
       },
       onError: (error) => {
@@ -128,20 +173,40 @@ function AddFrom() {
 
   const OnSubmit = (values) => {
     const { title } = values;
-    const payload = { title, type, ...values };
-    if (type === "shayari") {
+    const isShayari = type === "shayari";
+    const selectedFile = image instanceof File ? image : image?.originFileObj instanceof File ? image.originFileObj : null;
+
+    if (isShayari) {
       if (!content.trim() || content === "<p><br></p>") {
         ShowToast("Please write your shayari in the content box.", Severty.WARNING);
         return;
       }
-      payload.content = content;
     } else {
-      if (!image) {
+      const hasExistingImage = typeof image === "string" && image.trim();
+      if (!selectedFile && !hasExistingImage) {
         ShowToast("Please upload an image for your post.", Severty.WARNING);
         return;
       }
-      payload.image = image;
     }
+
+    const payload = isShayari ? { title, type, ...values, content } : new FormData();
+
+    if (!isShayari) {
+      appendFormDataValue(payload, "title", title);
+      appendFormDataValue(payload, "type", type);
+      appendFormDataValue(payload, "category", values.category);
+      appendFormDataValue(payload, "sub_category_id", values.sub_category_id);
+      appendFormDataValue(payload, "author", values.author);
+      appendFormDataValue(payload, "occasion_ids", values.occasion_ids);
+      appendFormDataValue(payload, "keywords", values.keywords || []);
+
+      if (selectedFile) {
+        payload.append("image", selectedFile);
+      }
+    } else {
+      payload.keywords = values.keywords || [];
+    }
+
     setLoading(true);
     request({
       url: paramId ? api.addEdit + "/" + paramId : api.addEdit,
@@ -164,24 +229,31 @@ function AddFrom() {
   };
 
   useEffect(() => {
-    setPageHeading(heading);
-  }, []);
+    setPageHeading(type === "shayari" ? `${lang("Shayari")} ${lang("Management")}` : `${lang("Feed")} ${lang("Management")}`);
+  }, [setPageHeading, type]);
 
   useEffect(() => {
     getCategory();
     getAuthor();
     getOccasion();
-    if (!paramId) return;
+    if (!paramId) {
+      form.resetFields();
+      setImage(null);
+      setContent("");
+      setSubCategories([]);
+      setKeywordOptions([]);
+      return;
+    }
     setLoading(true);
     fetchData(paramId);
-  }, [paramId]);
+  }, [paramId, type]);
   return (
     <>
       <div className="card">
         <div className="card-header">
           <div className="row">
             <div className="col-md-6">
-              <h5 className="pagetitle mt-3">{(paramId ? lang("Update") : lang("Add New")) + " " + sectionName} </h5>
+              <h5 className="pagetitle mt-3">{(paramId ? lang("Update") : lang("Add New")) + " " + (type === "shayari" ? lang("Shayari") : sectionName)} </h5>
             </div>
           </div>
         </div>
@@ -208,8 +280,10 @@ function AddFrom() {
                       showSearch
                       onChange={(value) => {
                         setSubCategories([]);
+                        setKeywordOptions([]);
+                        form.setFieldsValue({ sub_category_id: [], keywords: [] });
                         getSubCategory(value);
-                        form.setFieldValue({ sub_category_id: [] });
+                        getKeywords(value, []);
                       }}
                     >
                       {category.map((item) => (
@@ -231,7 +305,17 @@ function AddFrom() {
                       },
                     ]}
                   >
-                    <Select filterOption={(input, option) => option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0} placeholder={lang("Select Sub Category")} showSearch mode="multiple">
+                    <Select
+                      filterOption={(input, option) => option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                      placeholder={lang("Select Sub Category")}
+                      showSearch
+                      mode="multiple"
+                      onChange={(values) => {
+                        const nextSubCategoryIds = Array.isArray(values) ? values.filter(Boolean) : [];
+                        form.setFieldsValue({ keywords: [] });
+                        getKeywords(form.getFieldValue("category"), nextSubCategoryIds);
+                      }}
+                    >
                       {subCategories?.map((item) => (
                         <Select.Option key={item._id} label={item.name} value={item._id}>
                           {item.name}{" "}
@@ -240,6 +324,29 @@ function AddFrom() {
                     </Select>
                   </Form.Item>
                 </Col>
+                {type === "post" || type === "shayari" ? (
+                  <Col span={12} sm={12}>
+                    <Form.Item label={lang("Keywords")} name="keywords">
+                      <Select
+                        mode="multiple"
+                        allowClear
+                        showSearch
+                        disabled={!form.getFieldValue("category")}
+                        loading={keywordLoading}
+                        placeholder={lang("Select Keywords")}
+                        optionFilterProp="label"
+                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                      >
+                        {keywordOptions.map((item) => (
+                          <Select.Option key={item._id} label={`${item.name}${item.slug ? ` (${item.slug})` : ""}`} value={item._id}>
+                            {item.name}
+                            {item.slug ? <span className="ms-1 text-muted">({item.slug})</span> : null}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                ) : null}
                 <Col span={12} sm={12}>
                   <Form.Item
                     label={lang("Occasion Name")}
@@ -283,28 +390,28 @@ function AddFrom() {
                 </Col>
                 {type === "shayari" ? (
                   <Col span={24} sm={24}>
-                    <Form.Item label="Content">
-                      <CaptionInput value={content} onChange={setContent} />
+                    <Form.Item className="feed-content-item" label={lang("Content")}>
+                      <CaptionInput placeholder={lang("Write your shayari here...")} value={content} onChange={setContent} />
                     </Form.Item>
                   </Col>
                 ) : (
                   <Col span={24} sm={24}>
-                    <Form.Item name="image" className="text-white" label="Image" rules={[{ required: true, message: "Please upload an image for your post." }]}>
-                      <ProfileImageUpload size={10} value={image} fileType={FileType} btnName={"Choose Image"} imageType="Image" onChange={(data) => handleImage(data)} isDimension={true} />
+                    <Form.Item className="feed-image-item" label="Image">
+                      <SingleImageUpload size={10} value={image} fileType={FileType} btnName={"Image"} imageType="Image" onChange={(data) => handleImage(data)} isDimension={true} accept={FileType.join(",")} />
                     </Form.Item>
                   </Col>
                 )}
               </Row>
 
-              <Row gutter={[24, 16]} className="justify-content-center">
-                <Col span={6} md={6}>
-                  <Button className="btn  w-100 btn-border" htmlType="reset" onClick={() => navigate(-1)}>
-                    {lang("Back")}
+              <Row gutter={[24, 16]} className="justify-content-end feed-form-actions">
+                <Col span={6} md={5} xs={12}>
+                  <Button className="w-100 feed-cancel-btn" type="default" htmlType="button" onClick={() => navigate(-1)}>
+                    {lang("Cancel")}
                   </Button>
                 </Col>
-                <Col span={6} md={6}>
-                  <Button className="btn btn-primary w-100 btn-bg" type="primary" htmlType="submit" loading={loading} disabled={loading}>
-                    {"Submit"}
+                <Col span={6} md={5} xs={12}>
+                  <Button className="btn btn-primary w-100 btn-bg feed-submit-btn" type="primary" htmlType="submit" loading={loading} disabled={loading}>
+                    {type === "shayari" ? lang("Save") : lang("Submit")}
                   </Button>
                 </Col>
               </Row>
