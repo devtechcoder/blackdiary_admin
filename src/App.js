@@ -19,7 +19,7 @@ import Home from "./pages/Auth/Home";
 import SignIn from "./pages/Auth/SignIn";
 import Error from "./pages/Error";
 
-import { Seo, Masters, Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ } from "./pages";
+import { Seo, Masters, Settings, Category, CmsManagement, BannerManagement, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ, EmailTemplateManagement, EmailLogsManagement } from "./pages";
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
 function App() {
@@ -73,6 +73,8 @@ const AppRoutes = () => {
 
         {/* cms manager */}
         <Route exact path="/cms" element={<CmsManagement />} />
+        <Route exact path="/email-template" element={<EmailTemplateManagement />} />
+        <Route exact path="/email-logs" element={<EmailLogsManagement />} />
         <Route exact path="/banner" element={<BannerManagement />} />
         <Route exact path="/faq" element={<FAQ />} />
 

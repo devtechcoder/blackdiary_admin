@@ -12,6 +12,8 @@ import OccasionIcon from "../../assets/images/side_nav/star.svg";
 import FeedIcon from "../../assets/images/side_nav/blog.svg";
 import LeadershipIcon from "../../assets/images/side_nav/user.svg";
 import BannerIcon from "../../assets/images/side_nav/notification.svg";
+import EmailTemplateIcon from "../../assets/images/side_nav/file.svg";
+import EmailLogsIcon from "../../assets/images/side_nav/log.svg";
 import FaqIcon from "../../assets/images/side_nav/chat.svg";
 import MasterIcon from "../../assets/images/side_nav/bi_collection.svg";
 import SettingIcon from "../../assets/images/side_nav/file.svg";
@@ -100,6 +102,18 @@ export const menuItems = [
     path: "/cms",
     icon: Cms,
     label: `${lang("CMS")} ${lang("Management")}`,
+  },
+  {
+    key: "email-template-manager",
+    path: "/email-template",
+    icon: EmailTemplateIcon,
+    label: `${lang("Email Template")} ${lang("Management")}`,
+  },
+  {
+    key: "email-log-management",
+    path: "/email-logs",
+    icon: EmailLogsIcon,
+    label: `${lang("Email Logs")} ${lang("Management")}`,
   },
   {
     key: "banner-management",

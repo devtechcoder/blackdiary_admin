@@ -14,5 +14,7 @@ import Enquiry from "./Enquiry/Index";
 import ViewEnquiry from "./Enquiry/View";
 import FAQ from "./FAQ/Index";
 import KeywordEmotion from "./KeywordEmotion/Index";
+import EmailTemplateManagement from "./EmailTemplate/Index";
+import EmailLogsManagement from "./EmailLogs/Index";
 
-export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ };
+export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ, EmailTemplateManagement, EmailLogsManagement };

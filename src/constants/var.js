@@ -22,6 +22,7 @@ export const rolesOptions = [
   // { name: "delivery-charge-manager", label: "Delivery charge  Management" },
   { name: "Notifications", label: "Notifications Management" },
   { name: "email-template-manager", label: "Email Template Management" },
+  { name: "email-log-management", label: "Email Logs Management" },
 ];
 
 export const colorOptions = [

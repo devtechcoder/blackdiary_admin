@@ -54,8 +54,13 @@ let apiPath = {
   // EmailTemplate APIs
   listEmailTemplate: "admin/email-template/list",
   addEditEmailTemplate: "admin/email-template/add-edit",
+  deleteEmailTemplate: "admin/email-template",
   statusEmailTemplate: "admin/email-template/status",
   viewEmailTemplate: "admin/email-template/view",
+
+  // Email Logs APIs
+  listEmailLogs: "admin/email-logs",
+  viewEmailLog: "admin/email-logs",
 
   //category
   listCategory: "admin/category",
