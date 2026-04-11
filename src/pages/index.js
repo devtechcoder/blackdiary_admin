@@ -16,5 +16,6 @@ import FAQ from "./FAQ/Index";
 import KeywordEmotion from "./KeywordEmotion/Index";
 import EmailTemplateManagement from "./EmailTemplate/Index";
 import EmailLogsManagement from "./EmailLogs/Index";
+import LoginActivity from "./Customer/LoginActivity";
 
-export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ, EmailTemplateManagement, EmailLogsManagement };
+export { Seo, Masters, Settings, CmsManagement, BannerManagement, Category, Customer, SubCategory, KeywordEmotion, Diary, AddEditDiary, Occasion, Leadership, Enquiry, ViewEnquiry, FAQ, EmailTemplateManagement, EmailLogsManagement, LoginActivity };

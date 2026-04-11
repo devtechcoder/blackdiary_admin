@@ -1,7 +1,7 @@
 import { Button, Image, Input, Switch, Table, Tooltip, Select } from "antd";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import notfound from "../../assets/images/not_found.png";
 import Plus from "../../assets/images/plus.svg";
 import SectionWrapper from "../../components/SectionWrapper";
@@ -17,14 +17,15 @@ import DeleteModal from "../../components/DeleteModal";
 import EditIcon from "../../assets/images/edit.svg";
 import { DownloadExcel } from "../../components/ExcelFile";
 import ShowTotal from "../../components/ShowTotal";
+import { ClockCircleOutlined } from "@ant-design/icons";
 
 function Index() {
   const heading = lang("Customer") + " " + lang("Management");
   const { setPageHeading, country } = useContext(AppStateContext);
+  const navigate = useNavigate();
 
   const sectionName = "Customer";
   const routeName = "customer";
-  const params = useParams();
 
   const api = {
     status: apiPath.listCustomer + "/status",
@@ -47,7 +48,6 @@ function Index() {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const debouncedSearchText = useDebounce(searchText, 300);
   const [exportLoading, setExportLoading] = useState(false);
-
   const [filter, setFilter] = useState({
     country_id: undefined,
     city_id: undefined,
@@ -214,6 +214,20 @@ function Index() {
                 }}
               >
                 <img src={deleteWhiteIcon} />
+              </Button>
+            </Tooltip>
+
+            <Tooltip title={lang("Login Activity")} color={"purple"} key={"login-activity" + record?._id}>
+              <Button
+                title={lang("Login Activity")}
+                className="btnStyle primary_btn"
+                onClick={() => {
+                  navigate(`/customer/login-activity/${record?._id}`, {
+                    state: { user: record },
+                  });
+                }}
+              >
+                <ClockCircleOutlined />
               </Button>
             </Tooltip>
           </div>
@@ -470,6 +484,7 @@ function Index() {
           reasons={[]}
         />
       )}
+
     </>
   );
 }

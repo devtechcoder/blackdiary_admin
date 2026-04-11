@@ -17,6 +17,7 @@ let apiPath = {
   assetURL: ASSET_URL,
   dashboard: "admin/dashboard",
   login: "admin/auth/login",
+  adminLoginActivity: "admin/login-activity",
 
   profile: "admin/auth/get-profile",
   updateProfile: "admin/auth/update-profile",

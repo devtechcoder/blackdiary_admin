@@ -134,6 +134,7 @@ function Home() {
   const keywordInsights = dashboard?.keywordInsights || {};
   const recentPosts = dashboard?.recentActivity?.posts || [];
   const recentUsers = dashboard?.recentActivity?.users || [];
+  const recentLoginActivities = dashboard?.recentActivity?.loginActivities || [];
 
   const lineLabels = postGrowth.map((item) => item.label);
   const lineData = {
@@ -173,15 +174,16 @@ function Home() {
       legend: {
         position: "top",
         labels: {
+          color: "#111827",
           usePointStyle: true,
           boxWidth: 10,
           padding: 18,
         },
       },
       tooltip: {
-        backgroundColor: "#0f2f67",
-        titleColor: "#fff",
-        bodyColor: "#fff",
+        backgroundColor: "#ffffff",
+        titleColor: "#111827",
+        bodyColor: "#111827",
         padding: 12,
       },
     },
@@ -191,17 +193,17 @@ function Home() {
           display: false,
         },
         ticks: {
-          color: "#7b8496",
+          color: "#4b5563",
         },
       },
       y: {
         beginAtZero: true,
         ticks: {
           precision: 0,
-          color: "#7b8496",
+          color: "#4b5563",
         },
         grid: {
-          color: "rgba(15, 47, 103, 0.08)",
+          color: "rgba(17, 24, 39, 0.08)",
         },
       },
     },
@@ -227,14 +229,15 @@ function Home() {
       legend: {
         position: "bottom",
         labels: {
+          color: "#111827",
           usePointStyle: true,
           padding: 16,
         },
       },
       tooltip: {
-        backgroundColor: "#0f2f67",
-        titleColor: "#fff",
-        bodyColor: "#fff",
+        backgroundColor: "#ffffff",
+        titleColor: "#111827",
+        bodyColor: "#111827",
         padding: 12,
       },
     },
@@ -369,9 +372,10 @@ function Home() {
         </Space>
       </div>
 
+      <div className="dashboard-stack">
       <Row gutter={[20, 20]} className="dashboard-stats-grid">
         {statCards.map((item) => (
-          <Col key={item.title} xs={24} sm={12} lg={8} xl={4}>
+          <Col key={item.title} xs={24} sm={12} lg={8} xl={8} xxl={8}>
             <StatsCard
               title={item.title}
               value={item.value}
@@ -472,6 +476,34 @@ function Home() {
       </Row>
 
       <Row gutter={[20, 20]}>
+        <Col xs={24}>
+          <ActivityFeed
+            title="Recent Login Activity"
+            subtitle="Last 5 users who logged in"
+            items={recentLoginActivities}
+            loading={loading && !dashboard}
+            emptyText="No recent login activity"
+            renderItem={(item) => (
+              <div className="dashboard-activity-row">
+                <div>
+                  <Text className="dashboard-list-title">{item?.displayName || item?.userId?.name || item?.userId?.user_name || "User"}</Text>
+                  <div className="dashboard-activity-meta">
+                    <Tag color={item?.logoutAt ? "default" : "green"}>{item?.statusLabel || (item?.logoutAt ? "Logged Out" : "Active Now")}</Tag>
+                    <Tag color="gold">{item?.user_name ? `@${item.user_name}` : "No username"}</Tag>
+                    <Text className="dashboard-list-subtitle">{formatAgo(item?.loginAt)}</Text>
+                  </div>
+                </div>
+                <div className="dashboard-activity-meta">
+                  <Text className="dashboard-list-subtitle">{item?.location || "-"}</Text>
+                  <Text className="dashboard-list-subtitle">{item?.device || "Desktop"}</Text>
+                </div>
+              </div>
+            )}
+          />
+        </Col>
+      </Row>
+
+      <Row gutter={[20, 20]}>
         <Col xs={24} xl={8}>
           <Card bordered={false} className="dashboard-panel" title="Keyword Insights">
             <Tabs defaultActiveKey="most-used" className="dashboard-tabs">
@@ -543,60 +575,60 @@ function Home() {
         </Col>
 
         <Col xs={24} xl={16}>
-          <Row gutter={[20, 20]}>
-            <Col xs={24} lg={12}>
-              <ActivityFeed
-                title="Recent Posts Added"
-                subtitle="Last 5 posts created"
-                items={recentPosts}
-                loading={loading && !dashboard}
-                emptyText="No recent posts"
-                renderItem={(item) => (
-                  <div className="dashboard-activity-row">
-                    <div>
-                      <Text className="dashboard-list-title">{item?.title || "Untitled"}</Text>
-                      <div className="dashboard-activity-meta">
-                        <Tag color="gold">{item?.categoryLabel || "Others"}</Tag>
-                        <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
-                      </div>
-                    </div>
-                    <div className="dashboard-activity-meta">
-                      <Text className="dashboard-list-subtitle">
-                        {item?.author?.name || item?.author?.user_name || "Unknown author"}
-                      </Text>
-                      <Tag color="#0f2f67">{item?.likesCount || 0} likes</Tag>
-                    </div>
+          <ActivityFeed
+            title="Recent Users Registered"
+            subtitle="Last 5 users who joined"
+            items={recentUsers}
+            loading={loading && !dashboard}
+            emptyText="No recent users"
+            renderItem={(item) => (
+              <div className="dashboard-activity-row">
+                <div>
+                  <Text className="dashboard-list-title">{item?.displayName || item?.name || "User"}</Text>
+                  <div className="dashboard-activity-meta">
+                    <Tag color="gold">{item?.user_name ? `@${item.user_name}` : "No username"}</Tag>
+                    <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
                   </div>
-                )}
-              />
-            </Col>
-            <Col xs={24} lg={12}>
-              <ActivityFeed
-                title="Recent Users Registered"
-                subtitle="Last 5 users who joined"
-                items={recentUsers}
-                loading={loading && !dashboard}
-                emptyText="No recent users"
-                renderItem={(item) => (
-                  <div className="dashboard-activity-row">
-                    <div>
-                      <Text className="dashboard-list-title">{item?.displayName || item?.name || "User"}</Text>
-                      <div className="dashboard-activity-meta">
-                        <Tag color="gold">{item?.user_name ? `@${item.user_name}` : "No username"}</Tag>
-                        <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
-                      </div>
-                    </div>
-                    <div className="dashboard-activity-meta">
-                      <Text className="dashboard-list-subtitle">{item?.email || item?.mobile_number || "-"}</Text>
-                    </div>
-                  </div>
-                )}
-              />
-            </Col>
-          </Row>
+                </div>
+                <div className="dashboard-activity-meta">
+                  <Text className="dashboard-list-subtitle">{item?.email || item?.mobile_number || "-"}</Text>
+                </div>
+              </div>
+            )}
+          />
         </Col>
       </Row>
 
+      <Row gutter={[20, 20]}>
+        <Col xs={24}>
+          <ActivityFeed
+            title="Recent Posts Added"
+            subtitle="Last 5 posts created"
+            items={recentPosts}
+            loading={loading && !dashboard}
+            emptyText="No recent posts"
+            renderItem={(item) => (
+              <div className="dashboard-activity-row">
+                <div>
+                  <Text className="dashboard-list-title">{item?.title || "Untitled"}</Text>
+                  <div className="dashboard-activity-meta">
+                    <Tag color="gold">{item?.categoryLabel || "Others"}</Tag>
+                    <Text className="dashboard-list-subtitle">{formatAgo(item?.created_at)}</Text>
+                  </div>
+                </div>
+                <div className="dashboard-activity-meta">
+                  <Text className="dashboard-list-subtitle">
+                    {item?.author?.name || item?.author?.user_name || "Unknown author"}
+                  </Text>
+                  <Tag color="#0f2f67">{item?.likesCount || 0} likes</Tag>
+                </div>
+              </div>
+            )}
+          />
+        </Col>
+      </Row>
+
+      </div>
     </div>
   );
 }
