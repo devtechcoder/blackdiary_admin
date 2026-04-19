@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout, Button, Row, Col, Typography, Form, Input, Switch, Modal, Select, Checkbox } from "antd";
-import signinLogo from "../../assets/images/allLogo/black-logo.png";
-import signinbg from "../../assets/images/allLogo/login-bg-logo.png";
+import signinLogo from "../../assets/images/brand/white-logo.svg";
+import signinbg from "../../assets/images/brand/login-logo.svg";
 import useRequest from "../../hooks/useRequest";
 import useFirebase from "../../hooks/useFirebase";
 import { ShowToast, Severty } from "../../helper/toast";
@@ -424,7 +424,7 @@ const SignIn = () => {
                   {
                     pattern: new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,}$/),
                     message: lang(
-                      "New password atleast contain 8 characters, atleast contain one captital letter, atleast contain one small letter, atleast contain one digit, atleast contain one special character"
+                      "New password atleast contain 8 characters, atleast contain one captital letter, atleast contain one small letter, atleast contain one digit, atleast contain one special character",
                     ),
                   },
                 ]}

@@ -20,7 +20,7 @@ import SettingIcon from "../../assets/images/side_nav/file.svg";
 import SocialIcon from "../../assets/images/side_nav/chat.svg";
 import SeoIcon from "../../assets/images/side_nav/blog.svg";
 import EnquiryIcon from "../../assets/images/side_nav/chat.svg";
-import Logo from "../../assets/images/allLogo/logowithoutbrand.png";
+import Logo from "../../assets/images/brand/black_white_logo.svg";
 import { AuthContext } from "../../context/AuthContext";
 import lang from "../../helper/langHelper";
 import DeleteModal from "../DeleteModal";
@@ -254,8 +254,9 @@ function Sidenav({ color }) {
       ) : (
         <>
           <div className="brand-logo">
-            <NavLink to="" className="imgOuter">
-              <img className="" src={Logo} alt="" />
+            <NavLink to="/dashboard" className={`brand-logo-link ${collapsed ? "brand-logo-link-collapsed" : ""}`}>
+              <img className="brand-logo-image" src={Logo} alt="Black Diary" />
+              {!collapsed && <span className="brand-logo-text">Black Diary</span>}
             </NavLink>
           </div>
           <Menu inlineCollapsed={false} mode={menuMode} className="sideNavMain">
